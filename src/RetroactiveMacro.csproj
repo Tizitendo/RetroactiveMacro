@@ -1,0 +1,50 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>netstandard2.1</TargetFramework>
+		<LangVersion>preview</LangVersion>
+		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="BepInEx.Analyzers" Version="1.0.*">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+
+		<PackageReference Include="BepInEx.Core" Version="5.4.21" />
+
+		<PackageReference Include="MonoDetour" Version="0.7.15" />
+
+		<PackageReference Include="MonoDetour.HookGen" Version="0.7.14" />
+
+    <PackageReference Include="R2API.Items" Version="1.0.*" />
+    <PackageReference Include="R2API.Language" Version="1.0.*" />
+    <PackageReference Include="R2API.Animations" Version="1.2.1" />
+	<PackageReference Include="R2API.Prefab" Version="1.0.*" />
+
+    <PackageReference Include="UnityEngine.Modules" Version="2021.3.33" IncludeAssets="compile" />
+		<PackageReference Include="RiskOfRain2.GameLibs" Version="1.4.1.0-r.0" />
+		<PackageReference Include="MMHOOK.RoR2" Version="2025.12.9" NoWarn="NU1701" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Reference Include="MiscFixes">
+	    <HintPath>..\..\references\MiscFixes-nstrip.dll</HintPath>
+	  </Reference>
+	  <Reference Include="Rebindables">
+	    <HintPath>..\..\Rebindables-nstrip.dll</HintPath>
+	  </Reference>
+	  <Reference Include="RiskOfOptions">
+	    <HintPath>..\..\Rune580-Risk_Of_Options-2.8.4\plugins\RiskOfOptions\RiskOfOptions.dll</HintPath>
+	  </Reference>
+	  <Reference Include="WolfoQoL_Client">
+	    <HintPath>..\..\references\WolfoQoL_Client-nstrip.dll</HintPath>
+	  </Reference>
+	</ItemGroup>
+
+	<Target Name="PostBuild" AfterTargets="PostBuildEvent">
+	  <Exec Command="copy /Y &quot;$(TargetPath)&quot; &quot;$(ProjectDir)..\Thunderstore&quot;&#xD;&#xA;rmdir /S /Q &quot;C:\Users\TIZIA\AppData\Roaming\com.kesomannen.gale\riskofrain2\profiles\modding\BepInEx\plugins\0n_x-testmod&quot;&#xD;&#xA;mkdir &quot;C:\Users\TIZIA\AppData\Roaming\com.kesomannen.gale\riskofrain2\profiles\modding\BepInEx\plugins\0n_x-testmod&quot;&#xD;&#xA;xcopy /Y &quot;$(ProjectDir)..\Thunderstore&quot; &quot;C:\Users\TIZIA\AppData\Roaming\com.kesomannen.gale\riskofrain2\profiles\modding\BepInEx\plugins\0n_x-testmod&quot;" />
+	</Target>
+
+</Project>

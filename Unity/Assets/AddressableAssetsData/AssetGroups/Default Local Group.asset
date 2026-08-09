@@ -1,0 +1,37 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bbb281ee3bf0b054c82ac2347e9e782c, type: 3}
+  m_Name: Default Local Group
+  m_EditorClassIdentifier: 
+  m_GroupName: Default Local Group
+  m_Data:
+    m_SerializedData: []
+  m_GUID: 3b3121918830b834a8bffb9a779f523f
+  m_SerializeEntries:
+  - m_GUID: 2bf6a4850a80321468c6d26c91e34eb3
+    m_Address: Assets/Animations/EquipBarrel/Closing.controllerdiff
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 28e01dd54fd236f488e30f68b44e0849
+    m_Address: Assets/Animations/MultiShop/Reopen.controllerdiff
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: a3c230c550463d840a26868678840b9d
+    m_Address: Assets/Animations/ShippingDrone/Reopen.controllerdiff
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  m_ReadOnly: 0
+  m_Settings: {fileID: 11400000, guid: 547658405e4c108419fc9d5ed872613e, type: 2}
+  m_SchemaSet:
+    m_Schemas:
+    - {fileID: 11400000, guid: 161dd7d6e3b910a4883f22599d31fd1f, type: 2}
+    - {fileID: 11400000, guid: d108612d075a2a8438cf764b67fe2245, type: 2}

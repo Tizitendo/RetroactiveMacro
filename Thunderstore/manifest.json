@@ -1,0 +1,12 @@
+﻿{
+	"name": "RetroactiveMacro",
+	"version_number": "1.0.0",
+	"website_url": "https://github.com/Tizitendo/AntlerFix",
+	"description": "Reworks some macro to be less time consuming",
+	"dependencies": [
+		"bbepis-BepInExPack-5.4.2108",
+		"RiskofThunder-HookGenPatcher-1.2.3",
+		"RiskofThunder-R2API_Animations-1.2.0",
+		"RiskofThunder-R2API_ContentManagement-1.0.11"
+	]
+}
