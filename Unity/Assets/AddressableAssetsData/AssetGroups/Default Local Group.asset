@@ -29,6 +29,14 @@ MonoBehaviour:
     m_Address: Assets/Animations/ShippingDrone/Reopen.controllerdiff
     m_ReadOnly: 0
     m_SerializedLabels: []
+  - m_GUID: bb812e4d11af57645b6a6c66cb35e9ee
+    m_Address: Assets/Animations/Lockbox/Closing.controllerdiff
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: b052a7332b6f3694eae19b6e18b2a11c
+    m_Address: Assets/Animations/GoldChest/Closing.controllerdiff
+    m_ReadOnly: 0
+    m_SerializedLabels: []
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: 547658405e4c108419fc9d5ed872613e, type: 2}
   m_SchemaSet:

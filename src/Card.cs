@@ -1,7 +1,9 @@
 using Logger;
+using On.RoR2.Items;
 using RoR2;
 using RoR2.ContentManagement;
 using RoR2BepInExPack.GameAssetPaths.Version_1_39_0;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.Networking;
 
@@ -9,6 +11,8 @@ namespace RetroactiveMacro;
 
 public static class Card
 {
+	static bool _onCooldown;
+
 	[SystemInitializer]
 	static void Init()
 	{
@@ -18,16 +22,20 @@ public static class Card
 		On.EntityStates.GenericCharacterDeath.OnEnter += GenericCharacterDeath_OnEnter;
 		On.RoR2.ShopTerminalBehavior.UpdatePickupDisplayAndAnimations += UpdatePickupDisplayAndAnimations;
 		On.RoR2.CharacterMaster.TryReviveOnBodyDeath += TryReviveOnBodyDeath;
+		On.RoR2.Items.MultiShopCardUtils.OnPurchase += OnPurchase;
 		SceneDirector.onPrePopulateSceneServer += PrePopulateSceneServer;
 
 		AssetAsyncReferenceManager<GameObject>.LoadAsset(new(RoR2_Base_TripleShop.TripleShop_prefab)).Completed += (x) =>
 		{
 			x.Result.AddComponent<MacroCardItemHandler>();
 		};
-		AssetAsyncReferenceManager<GameObject>.LoadAsset(new(RoR2_Base_TripleShopEquipment.TripleShopEquipment_prefab)).Completed += (x) =>
+		if (!RetroactiveMacro.ExcludeEquipShops.Value)
 		{
-			x.Result.AddComponent<MacroCardItemHandler>();
-		};
+			AssetAsyncReferenceManager<GameObject>.LoadAsset(new(RoR2_Base_TripleShopEquipment.TripleShopEquipment_prefab)).Completed += (x) =>
+			{
+				x.Result.AddComponent<MacroCardItemHandler>();
+			};
+		}
 		AssetAsyncReferenceManager<GameObject>.LoadAsset(new(RoR2_Base_TripleShopLarge.TripleShopLarge_prefab)).Completed += (x) =>
 		{
 			x.Result.AddComponent<MacroCardItemHandler>();
@@ -40,6 +48,23 @@ public static class Card
 		{
 			x.Result.AddComponent<MacroCardDroneHandler>();
 		};
+	}
+
+	private static void OnPurchase(MultiShopCardUtils.orig_OnPurchase orig, CostTypeDef.PayCostContext context, int moneyCost)
+	{
+		_onCooldown = true;
+		RetroactiveMacro.Instance.StartCoroutine(UsedCard());
+		orig(context, moneyCost);
+	}
+
+	static IEnumerator UsedCard()
+	{
+		yield return new WaitForSeconds(0.5f);
+		_onCooldown = false;
+		if (!PlayerTeamHasEquipment(DLC1Content.Equipment.MultiShopCard.equipmentIndex))
+		{
+			HasNoCard();
+		}
 	}
 
 	private static void PrePopulateSceneServer(SceneDirector director)
@@ -107,6 +132,8 @@ public static class Card
 
 	static bool PlayerTeamHasEquipment(EquipmentIndex equipment)
 	{
+		if (_onCooldown)
+			return true;
 		foreach (PlayerCharacterMasterController instance in PlayerCharacterMasterController.instances)
 		{
 			if (instance && instance.isConnected && instance.master.hasBody && instance.master.GetBody().healthComponent && instance.master.GetBody().healthComponent.alive)
@@ -192,6 +219,7 @@ public static class Card
 				cardHandler.multiShopController.available = true;
 				terminals[i].GetComponent<PurchaseInteraction>().available = true;
 				Util.PlaySound("Play_UI_tripleChestShutter", shopTerminalBehavior.gameObject);
+				//shopTerminalBehavior.
 
 				if (NetworkServer.active)
 				{

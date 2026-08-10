@@ -15,8 +15,9 @@ static class Options
 
 	public static void Init()
 	{
-		RetroactiveMacro.ChangeSaleStar = RetroactiveMacro.Instance.Config.Bind("General", "Change Sale Star", true, "Reopen chests instead");
-		RetroactiveMacro.ChangeCard = RetroactiveMacro.Instance.Config.Bind("General", "Change Credit Card", true, "While holding the card, reopen all closed multishops");
+		RetroactiveMacro.ChangeSaleStar = RetroactiveMacro.Instance.Config.Bind("Sale Star", "Change Sale Star", true, "Reopen chests instead");
+		RetroactiveMacro.ChangeCard = RetroactiveMacro.Instance.Config.Bind("Executive Card", "Change Credit Card", true, "While holding the card, reopen all closed multishops");
+		RetroactiveMacro.ExcludeEquipShops = RetroactiveMacro.Instance.Config.Bind("Executive Card", "Exclude Equipment Shops", true, "Exclude equipment tri shops from all card changes");
 		if (Options.IsEnabled)
 		{
 			RiskOfOptionsConfig();
@@ -30,6 +31,7 @@ static class Options
 
 		ModSettingsManager.AddOption(new CheckBoxOption(RetroactiveMacro.ChangeSaleStar, true), MOD_GUID, MOD_NAME);
 		ModSettingsManager.AddOption(new CheckBoxOption(RetroactiveMacro.ChangeCard), MOD_GUID, MOD_NAME);
+		ModSettingsManager.AddOption(new CheckBoxOption(RetroactiveMacro.ExcludeEquipShops), MOD_GUID, MOD_NAME);
 
 		ModSettingsManager.SetModDescription($"Options for {MOD_NAME}", MOD_GUID, MOD_NAME);
 

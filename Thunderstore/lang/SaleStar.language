@@ -1,0 +1,15 @@
+{
+    "en":
+    {
+        "ITEM_LOWERPRICEDCHESTS_PICKUP": "Reopen a chest for an additional reward. Usable once per stage.",
+        "ITEM_LOWERPRICEDCHESTS_DESC": "Reopen a chest for an extra item. <style=cStack>Each additional Sale Star increases the chance of getting more items by 5%</style>.",
+        "ITEM_LOWERPRICEDCHESTS_UNCOMMON_PICKUP": "Reopen a chest for an additional <sprite name=\"Quality\"> reward. Usable once per stage.",
+        "ITEM_LOWERPRICEDCHESTS_UNCOMMON_DESC": "Reopen a chest for an extra <sprite name=\"QualityUncommon\"> uncommon item. <style=cStack>Each additional Sale Star increases the chance of getting more items by 5%</style>.",
+        "ITEM_LOWERPRICEDCHESTS_RARE_PICKUP": "Reopen a chest for an additional <sprite name=\"Quality\"> reward. Usable once per stage.",
+        "ITEM_LOWERPRICEDCHESTS_RARE_DESC": "Reopen a chest for an extra <sprite name=\"QualityRare\"> rare item. <style=cStack>Each additional Sale Star increases the chance of getting more items by 5%</style>.",
+        "ITEM_LOWERPRICEDCHESTS_EPIC_PICKUP": "Reopen a chest for an additional <sprite name=\"Quality\"> reward. Usable once per stage.",
+        "ITEM_LOWERPRICEDCHESTS_EPIC_DESC": "Reopen a chest for an extra <sprite name=\"QualityEpic\"> epic item. <style=cStack>Each additional Sale Star increases the chance of getting more items by 5%</style>.",
+        "ITEM_LOWERPRICEDCHESTS_LEGENDARY_PICKUP": "Reopen a chest for an additional <sprite name=\"Quality\"> reward. Usable once per stage.",
+        "ITEM_LOWERPRICEDCHESTS_LEGENDARY_DESC": "Reopen a chest for an extra <sprite name=\"QualityLegendary\"> legendary item. <style=cStack>Each additional Sale Star increases the chance of getting more items by 5%</style>.",
+    }
+}

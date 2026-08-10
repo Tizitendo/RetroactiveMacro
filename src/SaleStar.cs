@@ -2,12 +2,16 @@ using EntityStates;
 using EntityStates.Barrel;
 using Logger;
 using Mono.Cecil.Cil;
+using MonoDetour;
+using MonoDetour.Cil;
+using MonoDetour.HookGen;
 using MonoMod.Cil;
 using R2API;
 using RoR2;
 using RoR2.Items;
-using RoR2.UI;
 using System;
+using System.Reflection;
+using UnityEngine;
 
 namespace RetroactiveMacro;
 
@@ -18,17 +22,15 @@ public static class SaleStar
 	{
 		if (!RetroactiveMacro.ChangeSaleStar.Value)
 			return;
+		LanguageAPI.AddOverlayPath(System.IO.Path.Combine(System.IO.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "lang", "SaleStar.language"));
+
 		On.EntityStates.Barrel.Opened.OnEnter += Opened_OnEnter;
 		IL.RoR2.InteractionDriver.MyFixedUpdate += InteractionDriver_MyFixedUpdate;
 		IL.RoR2.PurchaseInteraction.OnInteractionBegin += PurchaseInteraction_OnInteractionBegin;
-		LanguageAPI.AddOverlay("ITEM_LOWERPRICEDCHESTS_PICKUP", "Reopen a chest for an additional reward. Usable once per stage.", "en");
-		LanguageAPI.AddOverlay("ITEM_LOWERPRICEDCHESTS_DESC", "Reopen a chest for an extra item. <style=cStack>Each additional Sale Star increases the chance of getting more items by 5%</style>.", "en");
-		//LanguageAPI.AddOverlayPath(System.IO.Path.Combine(System.IO.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "language"));
-		IL.RoR2.UI.PingIndicator.Update += PingIndicator_Update;
-		SceneExitController.onBeginExit += onBeginExit;
+		SceneExitController.onBeginExit += BeginExit;
 	}
 
-	private static void onBeginExit(SceneExitController controller)
+	private static void BeginExit(SceneExitController controller)
 	{
 		foreach (PurchaseInteraction interaction in InstanceTracker.GetInstancesList<PurchaseInteraction>())
 		{
@@ -36,31 +38,6 @@ public static class SaleStar
 			{
 				interaction.SetAvailable(false);
 			}
-		}
-	}
-
-	private static void PingIndicator_Update(ILContext il)
-	{
-		ILCursor c = new(il);
-		ILLabel label = null;
-
-		if (c.TryGotoNext(MoveType.After,
-			x => x.MatchLdfld(typeof(PurchaseInteraction), nameof(PurchaseInteraction.available)),
-			x => x.MatchBrtrue(out label)
-		))
-		{
-			c.Emit(OpCodes.Ldarg_0);
-			c.EmitDelegate<Func<PingIndicator, bool>>(SaleStarChestPingable);
-			c.Emit(OpCodes.Brtrue, label);
-		}
-		else
-		{
-			Log.Error(il.Method.Name + "Failed to find patch location");
-		}
-
-		static bool SaleStarChestPingable(PingIndicator self)
-		{
-			return self.pingTargetPurchaseInteraction.costType == SaleStarCost.SaleStar;
 		}
 	}
 
@@ -83,6 +60,8 @@ public static class SaleStar
 
 		static bool checkReopen(PurchaseInteraction self)
 		{
+			if (self.TryGetComponent(out RouletteChestController rouletteChestController))
+				return true;
 			return self.costType == SaleStarCost.SaleStar;
 		}
 
@@ -122,6 +101,8 @@ public static class SaleStar
 		{
 			if (!self.currentInteractable.TryGetComponent(out PurchaseInteraction purchaseInteration))
 				return false;
+			if (self.currentInteractable.TryGetComponent(out RouletteChestController rouletteChestController))
+				return true;
 			return purchaseInteration.costType == SaleStarCost.SaleStar;
 		}
 	}
@@ -163,6 +144,15 @@ public class CloseOpen : Closing
 			return;
 
 		chestBehavior.Roll();
+		foreach (UnityEngine.Events.PersistentCall eventCall in purchaseInteraction.onPurchase.m_PersistentCalls.m_Calls)
+		{
+			if (eventCall.methodName == "ItemDrop")
+			{
+				chestBehavior.ItemDrop();
+				break;
+			}
+		}
+
 		outer.SetNextState(new Opening());
 	}
 }
@@ -196,5 +186,112 @@ public class LowerPricedChestsBodyBehavoir : BaseItemBodyBehavior
 				interaction.SetAvailable(false);
 			}
 		}
+	}
+}
+
+[MonoDetourTargets(typeof(ItemQualities.Items.LowerPricedChests))]
+[MonoDetourTargets(typeof(ItemQualities.ItemCostQualityPatch))]
+public class QualityCompat
+{
+	[MonoDetourHookInitialize]
+	static void Init()
+	{
+		if (!RetroactiveMacro.ChangeSaleStar.Value)
+			return;
+		if (!enabled) 
+			return;
+
+		Md.ItemQualities.Items.LowerPricedChests.generateQualityDropTiersFromSaleStars.ILHook(generateQualityDropTiersFromSaleStars);
+		Md.ItemQualities.Items.LowerPricedChests.tryUpgradePickupQualityFromSaleStars.ILHook(tryUpgradePickupQualityFromSaleStars);
+
+		Md.ItemQualities.ItemCostQualityPatch.tryUpgradeQualityFromCost.Postfix(tryUpgradeQualityFromCost);
+	}
+
+	private static void tryUpgradeQualityFromCost(ref PickupIndex intendedDropPickupIndex, ref GameObject dropperObject, ref PickupIndex returnValue)
+	{
+		if (!dropperObject.TryGetComponent(out LastBuyTracker lastBuyTracker))
+			return;
+		if (lastBuyTracker.qualityTier > ItemQualities.QualityCatalog.GetQualityTier(returnValue))
+		{
+			returnValue = ItemQualities.QualityCatalog.GetPickupIndexOfQuality(intendedDropPickupIndex, lastBuyTracker.qualityTier);
+		}
+		lastBuyTracker.qualityTier = ItemQualities.QualityCatalog.GetQualityTier(returnValue);
+	}
+
+	private static bool? _enabled;
+	public static bool enabled
+	{
+		get
+		{
+			if (_enabled == null)
+			{
+				_enabled = BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey("com.Gorakh.ItemQualities");
+			}
+			return (bool)_enabled;
+		}
+	}
+
+	private static void tryUpgradePickupQualityFromSaleStars(ILManipulationInfo info)
+	{
+		ILCursor c = new(info.Context);
+
+		if (c.TryGotoNext(MoveType.After,
+			x => x.MatchLdcI4(0),
+			x => x.MatchCgt()
+		))
+		{
+			c.Index--;
+			c.Emit(OpCodes.Ldc_I4, 1);
+			c.Emit(OpCodes.Sub);
+		}
+		else
+		{
+			Log.Error(info.Context.Method.Name + "Failed to find patch location");
+		}
+
+		if (c.TryGotoNext(MoveType.After,
+			x => x.MatchLdcI4(1),
+			x => x.MatchSub()
+		))
+		{
+			c.Emit(OpCodes.Ldc_I4, 1);
+			c.Emit(OpCodes.Add);
+		}
+		else
+		{
+			Log.Error(info.Context.Method.Name + "Failed to find patch location");
+		}
+	}
+
+	private static void generateQualityDropTiersFromSaleStars(ILManipulationInfo info)
+	{
+		ILCursor c = new(info.Context);
+
+		if (c.TryGotoNext(MoveType.After,
+			x => x.MatchLdcI4(1),
+			x => x.MatchSub()
+		))
+		{
+			c.Emit(OpCodes.Ldarg_0);
+			c.EmitDelegate<Func<int, GameObject, int>>(makeFirstItemQuality);
+			//c.Emit(OpCodes.Ldc_I4, 1);
+			//c.Emit(OpCodes.Add);
+		}
+		else
+		{
+			Log.Error(info.Context.Method.Name + "Failed to find patch location");
+		}
+
+		static int makeFirstItemQuality(int minQuality, GameObject purchasedObject)
+		{
+			if (purchasedObject.TryGetComponent(out RouletteChestController rouletteChestController))
+				return minQuality;
+			return minQuality + 1;
+		}
+	}
+
+	public class LastBuyTracker : MonoBehaviour
+	{
+		public ItemQualities.QualityTier qualityTier = ItemQualities.QualityTier.None;
 	}
 }
