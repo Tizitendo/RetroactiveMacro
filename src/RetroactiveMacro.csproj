@@ -11,27 +11,30 @@
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
+		<PackageReference Include="BepInEx.AssemblyPublicizer.MSBuild" Version="0.4.3">
+		  <PrivateAssets>all</PrivateAssets>
+		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
 
 		<PackageReference Include="BepInEx.Core" Version="5.4.21" />
+
+		<PackageReference Include="Goorakh-Quality" Version="0.7.8" Publicize="true" />
 
 		<PackageReference Include="MonoDetour" Version="0.7.15" />
 
 		<PackageReference Include="MonoDetour.HookGen" Version="0.7.14" />
 
-    <PackageReference Include="R2API.Items" Version="1.0.*" />
-    <PackageReference Include="R2API.Language" Version="1.0.*" />
-    <PackageReference Include="R2API.Animations" Version="1.2.1" />
-	<PackageReference Include="R2API.Prefab" Version="1.0.*" />
+		<PackageReference Include="R2API.Items" Version="1.0.*" />
+		<PackageReference Include="R2API.Language" Version="1.0.*" />
+		<PackageReference Include="R2API.Animations" Version="1.2.1" />
+		<PackageReference Include="R2API.Prefab" Version="1.1.1" />
 
-    <PackageReference Include="UnityEngine.Modules" Version="2021.3.33" IncludeAssets="compile" />
+		<PackageReference Include="UnityEngine.Modules" Version="2021.3.33" IncludeAssets="compile" />
 		<PackageReference Include="RiskOfRain2.GameLibs" Version="1.4.1.0-r.0" />
 		<PackageReference Include="MMHOOK.RoR2" Version="2025.12.9" NoWarn="NU1701" />
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Reference Include="ItemQualities">
-	    <HintPath>..\..\references\ItemQualities-nstrip.dll</HintPath>
-	  </Reference>
 	  <Reference Include="MiscFixes">
 	    <HintPath>..\..\references\MiscFixes-nstrip.dll</HintPath>
 	  </Reference>
@@ -47,7 +50,6 @@
 	</ItemGroup>
 
 	<Target Name="PostBuild" AfterTargets="PostBuildEvent">
-	  <Exec Command="xcopy /Y /s /e &quot;$(TargetPath)&quot; &quot;$(ProjectDir)..\Thunderstore&quot;&#xD;&#xA;rmdir /S /Q &quot;C:\Users\TIZIA\AppData\Roaming\com.kesomannen.gale\riskofrain2\profiles\modding\BepInEx\plugins\0n_x-testmod&quot;&#xD;&#xA;mkdir &quot;C:\Users\TIZIA\AppData\Roaming\com.kesomannen.gale\riskofrain2\profiles\modding\BepInEx\plugins\0n_x-testmod&quot;&#xD;&#xA;xcopy /Y /s /e &quot;$(ProjectDir)..\Thunderstore&quot; &quot;C:\Users\TIZIA\AppData\Roaming\com.kesomannen.gale\riskofrain2\profiles\modding\BepInEx\plugins\0n_x-testmod&quot;" />
+	  <Exec Command="xcopy /Y /s /e &quot;$(TargetPath)&quot; &quot;$(ProjectDir)..\Thunderstore\plugins\$(ProjectName)&quot;&#xD;&#xA;&#xD;&#xA;      rmdir /S /Q &quot;C:\Users\TIZIA\AppData\Roaming\com.kesomannen.gale\riskofrain2\profiles\modding\BepInEx\plugins\0n_x-testmod&quot;&#xD;&#xA;&#xD;&#xA;      mkdir &quot;C:\Users\TIZIA\AppData\Roaming\com.kesomannen.gale\riskofrain2\profiles\modding\BepInEx\plugins\0n_x-testmod&quot;&#xD;&#xA;&#xD;&#xA;      xcopy /Y /s /e &quot;$(ProjectDir)..\Thunderstore\plugins\$(ProjectName)&quot; &quot;C:\Users\TIZIA\AppData\Roaming\com.kesomannen.gale\riskofrain2\profiles\modding\BepInEx\plugins\0n_x-testmod&quot;" />
 	</Target>
-
 </Project>

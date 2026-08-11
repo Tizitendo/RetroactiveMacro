@@ -1,0 +1,10 @@
+is_global = true
+build_property.MonoDetourHookGenStripUnusedHooks = partial
+build_property.MonoDetourHookGenNamespace = 
+build_property.RootNamespace = RetroactiveMacro
+build_property.ProjectDir = C:\RoR2 Mods\RetroactiveMacro\src\
+build_property.EnableComHosting = 
+build_property.EnableGeneratedComInterfaceComImportInterop = 
+build_property.CsWinRTUseWindowsUIXamlProjections = false
+build_property.EffectiveAnalysisLevelStyle = 
+build_property.EnableCodeStyleSeverity = 

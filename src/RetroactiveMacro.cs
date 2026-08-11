@@ -12,10 +12,12 @@ using RoR2.UI;
 using RoR2BepInExPack.GameAssetPathsBetter;
 using System;
 using System.Reflection;
+using System.Security.Permissions;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using static RetroactiveMacro.QualityCompat;
 
+[assembly: SecurityPermission(SecurityAction.RequestMinimum, SkipVerification = true)]
 [assembly: HG.Reflection.SearchableAttribute.OptIn]
 
 namespace RetroactiveMacro;
@@ -32,10 +34,12 @@ public class RetroactiveMacro : BaseUnityPlugin
 
 	public static RetroactiveMacro Instance;
 	public static AssetBundle Bundle;
+	public static GameObject FakeInteractableLock;
 
 	public static ConfigEntry<bool> ChangeSaleStar { get; set; }
 	public static ConfigEntry<bool> ChangeCard { get; set; }
 	public static ConfigEntry<bool> ExcludeEquipShops { get; set; }
+	public static ConfigEntry<bool> ExcludeSaleStarChest { get; set; }
 
 	public void Awake()
 	{
@@ -44,10 +48,13 @@ public class RetroactiveMacro : BaseUnityPlugin
 		Instance = SingletonHelper.Assign(Instance, this);
 		Options.Init();
 
-		MonoDetourManager.InvokeHookInitializers(Assembly.GetExecutingAssembly());
+		MonoDetourManager.InvokeHookInitializers(Assembly.GetExecutingAssembly(), false);
 
 		Bundle = AssetBundle.LoadFromFile(AssetBundlePath);
 		ContentAddition.AddEntityState<CloseOpen>(out _);
+
+		FakeInteractableLock = PrefabAPI.CreateEmptyPrefab("FakeInteractableLock", true);
+		PrefabAPI.RegisterNetworkPrefab(FakeInteractableLock);
 
 		AssetAsyncReferenceManager<RuntimeAnimatorController>.LoadAsset(new(RoR2_Base_MultiShopTerminal.animMultiShopTerminal_controller)).Completed += (controller) =>
 		{

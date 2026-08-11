@@ -1,10 +1,21 @@
+## 1.0.5
+* Added option to exclude Sale Star chests (on by default)
+* Added closing animation to Legendary Chests
+* Removed teleporter chest lock visual from opened chests (only visual)
+* Actually fixed project structure
+* Fixed language file
+* Fixed missing dependency
+
+## 1.0.4
+* Fixed folder structure
+
 ## 1.0.3
 * Added option to exclude equipment shops (on by default)
 * Fixed description of Quality Sale Star
 * Fixed Sale Star not working properly with Quality Rusted Key
 * Fixed multiple stacks of Quality Sale Star giving the wrong Quality count
-* Reenabled adaptive chests. They are completely unaffected by this mod
-* Made multishops pingable after use
+* Reenabled Adaptive Chests. They are completely unaffected by this mod
+* Made Multishops pingable after use
 
 ## 1.0.2
 * Fixed card not working properly

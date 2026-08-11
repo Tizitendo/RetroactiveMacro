@@ -9,6 +9,7 @@ Compatible with Quality
 <img src="https://github.com/Tizitendo/RetroactiveMacro/blob/main/Gifs/SaleStar.gif?raw=true" />
 
 * Can be used to reopen chests instead
+* Option to exclude chests that dropped a Sale Star (Default: enabled)
 * Total items gained is identical to vanilla
 * Adaptive chests are unaffected by this mod
 * Opened chests can be pinged

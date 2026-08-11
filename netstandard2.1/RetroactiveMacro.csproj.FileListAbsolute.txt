@@ -1,0 +1,17 @@
+C:\RoR2 Mods\RetroactiveMacro\src\bin\Release\netstandard2.1\RetroactiveMacro.deps.json
+C:\RoR2 Mods\RetroactiveMacro\src\bin\Release\netstandard2.1\RetroactiveMacro.dll
+C:\RoR2 Mods\RetroactiveMacro\src\bin\Release\netstandard2.1\RetroactiveMacro.pdb
+C:\RoR2 Mods\RetroactiveMacro\src\bin\Release\netstandard2.1\MiscFixes-nstrip.dll
+C:\RoR2 Mods\RetroactiveMacro\src\bin\Release\netstandard2.1\RiskOfOptions.dll
+C:\RoR2 Mods\RetroactiveMacro\src\bin\Release\netstandard2.1\WolfoQoL_Client-nstrip.dll
+C:\RoR2 Mods\RetroactiveMacro\src\bin\Release\netstandard2.1\RiskOfOptions.pdb
+C:\RoR2 Mods\RetroactiveMacro\src\netstandard2.1\RetroactiveMacro.csproj.AssemblyReference.cache
+C:\RoR2 Mods\RetroactiveMacro\src\netstandard2.1\RetroactiveMacro.IgnoresAccessChecksTo.cs
+C:\RoR2 Mods\RetroactiveMacro\src\netstandard2.1\RetroactiveMacro.GeneratedMSBuildEditorConfig.editorconfig
+C:\RoR2 Mods\RetroactiveMacro\src\netstandard2.1\RetroactiveMacro.AssemblyInfoInputs.cache
+C:\RoR2 Mods\RetroactiveMacro\src\netstandard2.1\RetroactiveMacro.AssemblyInfo.cs
+C:\RoR2 Mods\RetroactiveMacro\src\netstandard2.1\RetroactiveMacro.csproj.CoreCompileInputs.cache
+C:\RoR2 Mods\RetroactiveMacro\src\netstandard2.1\RetroactiveMacro.sourcelink.json
+C:\RoR2 Mods\RetroactiveMacro\src\netstandard2.1\Retroact.E8ABF369.Up2Date
+C:\RoR2 Mods\RetroactiveMacro\src\netstandard2.1\RetroactiveMacro.dll
+C:\RoR2 Mods\RetroactiveMacro\src\netstandard2.1\RetroactiveMacro.pdb

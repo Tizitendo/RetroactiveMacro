@@ -1,5 +1,7 @@
+using BepInEx;
 using EntityStates;
 using EntityStates.Barrel;
+using HG;
 using Logger;
 using Mono.Cecil.Cil;
 using MonoDetour;
@@ -10,8 +12,11 @@ using R2API;
 using RoR2;
 using RoR2.Items;
 using System;
+using System.IO;
 using System.Reflection;
 using UnityEngine;
+using UnityEngine.Networking;
+using static RetroactiveMacro.SaleStar;
 
 namespace RetroactiveMacro;
 
@@ -22,12 +27,53 @@ public static class SaleStar
 	{
 		if (!RetroactiveMacro.ChangeSaleStar.Value)
 			return;
-		LanguageAPI.AddOverlayPath(System.IO.Path.Combine(System.IO.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "lang", "SaleStar.language"));
+			
+		string path = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "lang", "SaleStar.language");
+		if (File.Exists(path))
+		{
+			LanguageAPI.AddOverlayPath(path);
+		} else {
+			Log.Error("Failed to find path: " + path);
+		}
 
 		On.EntityStates.Barrel.Opened.OnEnter += Opened_OnEnter;
 		IL.RoR2.InteractionDriver.MyFixedUpdate += InteractionDriver_MyFixedUpdate;
 		IL.RoR2.PurchaseInteraction.OnInteractionBegin += PurchaseInteraction_OnInteractionBegin;
 		SceneExitController.onBeginExit += BeginExit;
+		On.RoR2.ChestBehavior.Open += ChestBehavior_Open;
+		IL.RoR2.OutsideInteractableLocker.LockInteractable += LockInteractable;
+	}
+
+	private static void LockInteractable(ILContext il)
+	{
+		ILCursor c = new ILCursor(il);
+		ILLabel label = c.DefineLabel();
+
+		if (c.TryGotoNext(MoveType.After,
+			x => x.MatchLdfld(typeof(OutsideInteractableLocker), nameof(OutsideInteractableLocker.lockPrefab))
+		))
+		{
+			c.Emit(OpCodes.Ldarg_1);
+			c.EmitDelegate<Func<GameObject, IInteractableLockable, GameObject>>(replaceLock);
+			//c.MarkLabel(label);
+			//c.Index -= 3;
+			//c.Emit(OpCodes.Br, label);
+		}
+		else
+		{
+			Log.Error(il.Method.Name + "Failed to find patch location");
+		}
+
+		static GameObject replaceLock(GameObject LockPrefab, IInteractableLockable interactableLockable)
+		{
+			GameObject interactable = interactableLockable.GetGameObject();
+			if (interactable && interactable.TryGetComponent(out PurchaseInteraction purchaseInteraction))
+			{
+				if (purchaseInteraction.costType == SaleStarCost.SaleStar)
+					return RetroactiveMacro.FakeInteractableLock;
+			}
+			return LockPrefab;
+		}
 	}
 
 	private static void BeginExit(SceneExitController controller)
@@ -117,6 +163,8 @@ public static class SaleStar
 
 		if (purchaseInteraction.costType != SaleStarCost.SaleStar)
 		{
+			if (self.TryGetComponent(out ChestLootTracker chestLootTracker) && chestLootTracker.ItemIndex == DLC2Content.Items.LowerPricedChests.itemIndex)
+				return;
 			if (purchaseInteraction.lastActivator && purchaseInteraction.lastActivator.TryGetComponent(out CharacterBody body)
 			&& body.inventory && body.inventory.GetItemCountEffective(DLC2Content.Items.LowerPricedChests) > 0)
 			{
@@ -130,6 +178,24 @@ public static class SaleStar
 		{
 			purchaseInteraction.costType = CostTypeIndex.Money;
 		}
+	}
+
+	private static void ChestBehavior_Open(On.RoR2.ChestBehavior.orig_Open orig, ChestBehavior self)
+	{
+		if (RetroactiveMacro.ExcludeSaleStarChest.Value)
+		{
+			ChestLootTracker tracker = self.EnsureComponent<ChestLootTracker>();
+			if (self.currentPickup.isValid)
+			{
+				tracker.ItemIndex = PickupCatalog.GetPickupDef(self.currentPickup.pickupIndex).itemIndex;
+			}
+		}
+		orig(self);
+	}
+
+	public class ChestLootTracker : MonoBehaviour
+	{
+		public ItemIndex ItemIndex;
 	}
 }
 
@@ -168,6 +234,8 @@ public class LowerPricedChestsBodyBehavoir : BaseItemBodyBehavior
 		{
 			if (!interaction.TryGetComponent(out EntityStateMachine stateMachine) || stateMachine.state is not Opened)
 				continue;
+			if (interaction.TryGetComponent(out ChestLootTracker chestLootTracker) && chestLootTracker.ItemIndex == DLC2Content.Items.LowerPricedChests.itemIndex)
+				continue;
 			if (interaction.saleStarCompatible && interaction.costType == SaleStarCost.SaleStar)
 			{
 				interaction.SetAvailable(true);
@@ -193,6 +261,19 @@ public class LowerPricedChestsBodyBehavoir : BaseItemBodyBehavior
 [MonoDetourTargets(typeof(ItemQualities.ItemCostQualityPatch))]
 public class QualityCompat
 {
+	private static bool? _enabled;
+	public static bool enabled
+	{
+		get
+		{
+			if (_enabled == null)
+			{
+				_enabled = BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey("com.Gorakh.ItemQualities");
+			}
+			return (bool)_enabled;
+		}
+	}
+
 	[MonoDetourHookInitialize]
 	static void Init()
 	{
@@ -216,19 +297,6 @@ public class QualityCompat
 			returnValue = ItemQualities.QualityCatalog.GetPickupIndexOfQuality(intendedDropPickupIndex, lastBuyTracker.qualityTier);
 		}
 		lastBuyTracker.qualityTier = ItemQualities.QualityCatalog.GetQualityTier(returnValue);
-	}
-
-	private static bool? _enabled;
-	public static bool enabled
-	{
-		get
-		{
-			if (_enabled == null)
-			{
-				_enabled = BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey("com.Gorakh.ItemQualities");
-			}
-			return (bool)_enabled;
-		}
 	}
 
 	private static void tryUpgradePickupQualityFromSaleStars(ILManipulationInfo info)
@@ -274,8 +342,6 @@ public class QualityCompat
 		{
 			c.Emit(OpCodes.Ldarg_0);
 			c.EmitDelegate<Func<int, GameObject, int>>(makeFirstItemQuality);
-			//c.Emit(OpCodes.Ldc_I4, 1);
-			//c.Emit(OpCodes.Add);
 		}
 		else
 		{
