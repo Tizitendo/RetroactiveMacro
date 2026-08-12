@@ -24,6 +24,7 @@ public static class Card
 		On.RoR2.CharacterMaster.TryReviveOnBodyDeath += TryReviveOnBodyDeath;
 		On.RoR2.Items.MultiShopCardUtils.OnPurchase += OnPurchase;
 		SceneDirector.onPrePopulateSceneServer += PrePopulateSceneServer;
+		On.EntityStates.DroneVendor.DroneVendorAssumeIdle.OnExit += DroneVendorAssumeIdle_OnExit;
 
 		AssetAsyncReferenceManager<GameObject>.LoadAsset(new(RoR2_Base_TripleShop.TripleShop_prefab)).Completed += (x) =>
 		{
@@ -152,7 +153,13 @@ public static class Card
 			for (uint set = 0; set < inventory.GetEquipmentSetCount(slot); set++)
 			{
 				EquipmentState state = inventory.GetEquipment(slot, set);
-				if (state.equipmentIndex == equipment && state.charges > 0)
+
+				EquipmentIndex heldEquipment = state.equipmentIndex;
+				if (QualityCompat.enabled)
+				{
+					heldEquipment = QualityCompat.GetBaseEquipmentIndex(heldEquipment);
+				}
+				if (heldEquipment == equipment && state.charges > 0)
 				{
 					return true;
 				}
@@ -161,48 +168,99 @@ public static class Card
 		return false;
 	}
 
+	private static void DroneVendorAssumeIdle_OnExit(On.EntityStates.DroneVendor.DroneVendorAssumeIdle.orig_OnExit orig, EntityStates.DroneVendor.DroneVendorAssumeIdle self)
+	{
+		orig(self);
+		if (PlayerTeamHasEquipment(DLC1Content.Equipment.MultiShopCard.equipmentIndex) &&
+		self.TryGetComponent(out MacroCardDroneHandler cardHandler))
+		{
+			RetroactiveMacro.Instance.StartCoroutine(WaitToReenable());
+		}
+
+		IEnumerator WaitToReenable()
+		{
+			yield return new WaitForFixedUpdate();
+			DroneVendorHasCard(cardHandler);
+		}
+	}
+
 	private static void HasNoCard()
 	{
 		foreach (MacroCardItemHandler cardHandler in InstanceTracker.GetInstancesList<MacroCardItemHandler>())
 		{
-			if (cardHandler.recoveredShop)
-			{
-				GameObject[] terminals = cardHandler.multiShopController.terminalGameObjects;
-				for (int i = 0; i < terminals.Length; i++)
-				{
-					if (!terminals[i].TryGetComponent(out ShopTerminalBehavior shopTerminalBehavior))
-						continue;
-					if (!shopTerminalBehavior.animator)
-						continue;
-					if (shopTerminalBehavior.hasBeenPurchased)
-						continue;
-					cardHandler.multiShopController.available = false;
-					terminals[i].GetComponent<PurchaseInteraction>().available = false;
-					shopTerminalBehavior.SetNoPickup();
-				}
-			}
+			ItemVendorHasNoCard(cardHandler);
 		}
 
 		foreach (MacroCardDroneHandler cardHandler in InstanceTracker.GetInstancesList<MacroCardDroneHandler>())
 		{
-			if (cardHandler.recoveredShop)
-			{
-				DroneVendorTerminalBehavior[] terminals = cardHandler.multiShopController._terminals;
-				for (int i = 0; i < terminals.Length; i++)
-				{
-					if (terminals[i].hasBeenPurchased)
-						continue;
-					cardHandler.multiShopController.available = false;
-					terminals[i].purchaseInteraction.available = false;
-					terminals[i].SetNoPickup();
-				}
-			}
+			DroneVendorHasNoCard(cardHandler);
 		}
 	}
 
 	private static void HasCard()
 	{
 		foreach (MacroCardItemHandler cardHandler in InstanceTracker.GetInstancesList<MacroCardItemHandler>())
+		{
+			ItemVendorHasCard(cardHandler);
+		}
+
+		foreach (MacroCardDroneHandler cardHandler in InstanceTracker.GetInstancesList<MacroCardDroneHandler>())
+		{
+			DroneVendorHasCard(cardHandler);
+		}
+	}
+
+	static void ItemVendorHasCard(MacroCardItemHandler cardHandler)
+	{
+		GameObject[] terminals = cardHandler.multiShopController.terminalGameObjects;
+		for (int i = 0; i < terminals.Length; i++)
+		{
+			if (!terminals[i].TryGetComponent(out ShopTerminalBehavior shopTerminalBehavior))
+				continue;
+			if (!shopTerminalBehavior.animator)
+				continue;
+			if (shopTerminalBehavior.hasBeenPurchased)
+				continue;
+			if (terminals[i].GetComponent<PurchaseInteraction>().available)
+				continue;
+			cardHandler.recoveredShop = true;
+			cardHandler.multiShopController.available = true;
+			terminals[i].GetComponent<PurchaseInteraction>().available = true;
+			Util.PlaySound("Play_UI_tripleChestShutter", shopTerminalBehavior.gameObject);
+
+			if (NetworkServer.active)
+			{
+				shopTerminalBehavior.SetPickup(cardHandler.savedPickups[i], cardHandler.hidden[i]);
+				shopTerminalBehavior.UpdatePickupDisplayAndAnimations();
+			}
+		}
+	}
+
+	static void DroneVendorHasCard(MacroCardDroneHandler cardHandler)
+	{
+		if (cardHandler.multiShopController.TryGetComponent(out EntityStateMachine entityStateMachine) &&
+		entityStateMachine.state is not EntityStates.Idle)
+			return;
+		DroneVendorTerminalBehavior[] terminals = cardHandler.multiShopController._terminals;
+		for (int i = 0; i < terminals.Length; i++)
+		{
+			if (terminals[i].hasBeenPurchased)
+				continue;
+			if (terminals[i].purchaseInteraction.available)
+				continue;
+			cardHandler.recoveredShop = true;
+			if (terminals[i].GetComponent<EntityStateMachine>().state is EntityStates.Idle)
+			{
+				cardHandler.multiShopController.available = true;
+			}
+			terminals[i].GetComponent<PurchaseInteraction>().available = true;
+			terminals[i].SetPickup(cardHandler.savedPickups[i]);
+		}
+	}
+
+	static void ItemVendorHasNoCard(MacroCardItemHandler cardHandler)
+	{
+		if (cardHandler.recoveredShop)
 		{
 			GameObject[] terminals = cardHandler.multiShopController.terminalGameObjects;
 			for (int i = 0; i < terminals.Length; i++)
@@ -213,38 +271,25 @@ public static class Card
 					continue;
 				if (shopTerminalBehavior.hasBeenPurchased)
 					continue;
-				if (terminals[i].GetComponent<PurchaseInteraction>().available)
-					continue;
-				cardHandler.recoveredShop = true;
-				cardHandler.multiShopController.available = true;
-				terminals[i].GetComponent<PurchaseInteraction>().available = true;
-				Util.PlaySound("Play_UI_tripleChestShutter", shopTerminalBehavior.gameObject);
-				//shopTerminalBehavior.
-
-				if (NetworkServer.active)
-				{
-					shopTerminalBehavior.SetPickup(cardHandler.savedPickups[i], cardHandler.hidden[i]);
-					shopTerminalBehavior.UpdatePickupDisplayAndAnimations();
-				}
+				cardHandler.multiShopController.available = false;
+				terminals[i].GetComponent<PurchaseInteraction>().available = false;
+				shopTerminalBehavior.SetNoPickup();
 			}
 		}
+	}
 
-		foreach (MacroCardDroneHandler cardHandler in InstanceTracker.GetInstancesList<MacroCardDroneHandler>())
+	static void DroneVendorHasNoCard(MacroCardDroneHandler cardHandler)
+	{
+		if (cardHandler.recoveredShop)
 		{
 			DroneVendorTerminalBehavior[] terminals = cardHandler.multiShopController._terminals;
 			for (int i = 0; i < terminals.Length; i++)
 			{
 				if (terminals[i].hasBeenPurchased)
 					continue;
-				if (terminals[i].purchaseInteraction.available)
-					continue;
-				cardHandler.recoveredShop = true;
-				if (terminals[i].GetComponent<EntityStateMachine>().state is EntityStates.Idle)
-				{
-					cardHandler.multiShopController.available = true;
-				}
-				terminals[i].GetComponent<PurchaseInteraction>().available = true;
-				terminals[i].SetPickup(cardHandler.savedPickups[i]);
+				cardHandler.multiShopController.available = false;
+				terminals[i].purchaseInteraction.available = false;
+				terminals[i].SetNoPickup();
 			}
 		}
 	}

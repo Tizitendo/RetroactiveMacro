@@ -4,9 +4,6 @@ using EntityStates.Barrel;
 using HG;
 using Logger;
 using Mono.Cecil.Cil;
-using MonoDetour;
-using MonoDetour.Cil;
-using MonoDetour.HookGen;
 using MonoMod.Cil;
 using R2API;
 using RoR2;
@@ -15,7 +12,6 @@ using System;
 using System.IO;
 using System.Reflection;
 using UnityEngine;
-using UnityEngine.Networking;
 using static RetroactiveMacro.SaleStar;
 
 namespace RetroactiveMacro;
@@ -55,9 +51,6 @@ public static class SaleStar
 		{
 			c.Emit(OpCodes.Ldarg_1);
 			c.EmitDelegate<Func<GameObject, IInteractableLockable, GameObject>>(replaceLock);
-			//c.MarkLabel(label);
-			//c.Index -= 3;
-			//c.Emit(OpCodes.Br, label);
 		}
 		else
 		{
@@ -234,7 +227,12 @@ public class LowerPricedChestsBodyBehavoir : BaseItemBodyBehavior
 		{
 			if (!interaction.TryGetComponent(out EntityStateMachine stateMachine) || stateMachine.state is not Opened)
 				continue;
-			if (interaction.TryGetComponent(out ChestLootTracker chestLootTracker) && chestLootTracker.ItemIndex == DLC2Content.Items.LowerPricedChests.itemIndex)
+			ItemIndex itemIndex = DLC2Content.Items.LowerPricedChests.itemIndex;
+			if (QualityCompat.enabled)
+			{
+				itemIndex = QualityCompat.GetBaseItemIndex(DLC2Content.Items.LowerPricedChests.itemIndex);
+			}
+			if (interaction.TryGetComponent(out ChestLootTracker chestLootTracker) && chestLootTracker.ItemIndex == itemIndex)
 				continue;
 			if (interaction.saleStarCompatible && interaction.costType == SaleStarCost.SaleStar)
 			{
@@ -254,110 +252,5 @@ public class LowerPricedChestsBodyBehavoir : BaseItemBodyBehavior
 				interaction.SetAvailable(false);
 			}
 		}
-	}
-}
-
-[MonoDetourTargets(typeof(ItemQualities.Items.LowerPricedChests))]
-[MonoDetourTargets(typeof(ItemQualities.ItemCostQualityPatch))]
-public class QualityCompat
-{
-	private static bool? _enabled;
-	public static bool enabled
-	{
-		get
-		{
-			if (_enabled == null)
-			{
-				_enabled = BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey("com.Gorakh.ItemQualities");
-			}
-			return (bool)_enabled;
-		}
-	}
-
-	[MonoDetourHookInitialize]
-	static void Init()
-	{
-		if (!RetroactiveMacro.ChangeSaleStar.Value)
-			return;
-		if (!enabled) 
-			return;
-
-		Md.ItemQualities.Items.LowerPricedChests.generateQualityDropTiersFromSaleStars.ILHook(generateQualityDropTiersFromSaleStars);
-		Md.ItemQualities.Items.LowerPricedChests.tryUpgradePickupQualityFromSaleStars.ILHook(tryUpgradePickupQualityFromSaleStars);
-
-		Md.ItemQualities.ItemCostQualityPatch.tryUpgradeQualityFromCost.Postfix(tryUpgradeQualityFromCost);
-	}
-
-	private static void tryUpgradeQualityFromCost(ref PickupIndex intendedDropPickupIndex, ref GameObject dropperObject, ref PickupIndex returnValue)
-	{
-		if (!dropperObject.TryGetComponent(out LastBuyTracker lastBuyTracker))
-			return;
-		if (lastBuyTracker.qualityTier > ItemQualities.QualityCatalog.GetQualityTier(returnValue))
-		{
-			returnValue = ItemQualities.QualityCatalog.GetPickupIndexOfQuality(intendedDropPickupIndex, lastBuyTracker.qualityTier);
-		}
-		lastBuyTracker.qualityTier = ItemQualities.QualityCatalog.GetQualityTier(returnValue);
-	}
-
-	private static void tryUpgradePickupQualityFromSaleStars(ILManipulationInfo info)
-	{
-		ILCursor c = new(info.Context);
-
-		if (c.TryGotoNext(MoveType.After,
-			x => x.MatchLdcI4(0),
-			x => x.MatchCgt()
-		))
-		{
-			c.Index--;
-			c.Emit(OpCodes.Ldc_I4, 1);
-			c.Emit(OpCodes.Sub);
-		}
-		else
-		{
-			Log.Error(info.Context.Method.Name + "Failed to find patch location");
-		}
-
-		if (c.TryGotoNext(MoveType.After,
-			x => x.MatchLdcI4(1),
-			x => x.MatchSub()
-		))
-		{
-			c.Emit(OpCodes.Ldc_I4, 1);
-			c.Emit(OpCodes.Add);
-		}
-		else
-		{
-			Log.Error(info.Context.Method.Name + "Failed to find patch location");
-		}
-	}
-
-	private static void generateQualityDropTiersFromSaleStars(ILManipulationInfo info)
-	{
-		ILCursor c = new(info.Context);
-
-		if (c.TryGotoNext(MoveType.After,
-			x => x.MatchLdcI4(1),
-			x => x.MatchSub()
-		))
-		{
-			c.Emit(OpCodes.Ldarg_0);
-			c.EmitDelegate<Func<int, GameObject, int>>(makeFirstItemQuality);
-		}
-		else
-		{
-			Log.Error(info.Context.Method.Name + "Failed to find patch location");
-		}
-
-		static int makeFirstItemQuality(int minQuality, GameObject purchasedObject)
-		{
-			if (purchasedObject.TryGetComponent(out RouletteChestController rouletteChestController))
-				return minQuality;
-			return minQuality + 1;
-		}
-	}
-
-	public class LastBuyTracker : MonoBehaviour
-	{
-		public ItemQualities.QualityTier qualityTier = ItemQualities.QualityTier.None;
 	}
 }

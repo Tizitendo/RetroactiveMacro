@@ -1,3 +1,13 @@
+## 1.0.7
+* Fixed the game shitting itself without quality
+* Fixed new animations not working on preplaced objects
+* Fixed multishops sometimes not closing correctly
+* Fixed ping related error spamming
+
+## 1.0.6
+* Fixed various quality compat problems
+* Fixed drone shops acting weird
+
 ## 1.0.5
 * Added option to exclude Sale Star chests (on by default)
 * Added closing animation to Legendary Chests

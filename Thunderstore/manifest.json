@@ -1,6 +1,6 @@
 ﻿{
 	"name": "RetroactiveMacro",
-	"version_number": "1.0.5",
+	"version_number": "1.0.7",
 	"website_url": "https://github.com/Tizitendo/RetroactiveMacro",
 	"description": "Reworks some macro to be less time consuming",
 	"dependencies": [
@@ -9,6 +9,8 @@
 		"RiskofThunder-R2API_Animations-1.2.0",
 		"RiskofThunder-R2API_ContentManagement-1.0.11",
 		"MonoDetour-MonoDetour_BepInEx_5-0.7.15",
-		"RiskofThunder-R2API_Prefab-1.1.1"
+		"RiskofThunder-R2API_Prefab-1.1.1",
+		"score-MiscFixes-1.5.9",
+		"RiskofThunder-R2API_Language-1.1.0"
 	]
 }
