@@ -12,7 +12,7 @@
 [Uu]ser[Ss]ettings/
 *.log
 *.dll
-*.bundle
+!Unity/Assets/Dependencies/*
 
 #Ensures RoR2 assemblies are not redistributed accidentally
 RetroactiveMacro/[Pp]ackages/[Rr]isk of Rain 2/*.dll
@@ -24,11 +24,6 @@ RetroactiveMacro/Assets/ThunderKitSettings/RoR2.asset
 RetroactiveMacro/Assets/ThunderKitSettings/Logs/*
 RetroactiveMacro/Assets/ThunderKitSettings/ThunderKit Extensions.asset
 RetroactiveMacro/ThunderKit/
-
-#Ensures mod dependencies such as R2API and others are not explicitly added to the github repository to avoid unecesary redistribution
-SS2-Project/Packages/*
-!SS2-Project/Packages/packages-lock.json
-!SS2-Project/Packages/manifest.json
 
 # User-specific files
 *.suo
@@ -90,7 +85,6 @@ StyleCopReport.xml
 *_p.c
 *_i.h
 *.ilk
-*.meta
 *.obj
 *.iobj
 *.pch
@@ -207,10 +201,6 @@ PublishScripts/
 
 # NuGet Packages
 *.nupkg
-# The packages folder can be ignored because of Package Restore
-**/[Pp]ackages/*
-# except build/, which is used as an MSBuild target.
-!**/[Pp]ackages/build/
 # Uncomment if necessary however generally it will be regenerated when needed
 #!**/[Pp]ackages/repositories.config
 # NuGet v3's project.json files produces more ignorable files

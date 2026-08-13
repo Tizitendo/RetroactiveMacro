@@ -37,6 +37,9 @@
 	</ItemGroup>
 
 	<Target Name="PostBuild" AfterTargets="PostBuildEvent">
-	  <Exec Command="xcopy /Y /s /e &quot;$(TargetPath)&quot; &quot;$(ProjectDir)..\Thunderstore\plugins&quot;&#xD;&#xA;&#xD;&#xA;      rmdir /S /Q &quot;C:\Users\TIZIA\AppData\Roaming\com.kesomannen.gale\riskofrain2\profiles\modding\BepInEx\plugins\0n_x-testmod&quot;&#xD;&#xA;&#xD;&#xA;      mkdir &quot;C:\Users\TIZIA\AppData\Roaming\com.kesomannen.gale\riskofrain2\profiles\modding\BepInEx\plugins\0n_x-testmod&quot;&#xD;&#xA;&#xD;&#xA;      xcopy /Y /s /e &quot;$(ProjectDir)..\Thunderstore\plugins&quot; &quot;C:\Users\TIZIA\AppData\Roaming\com.kesomannen.gale\riskofrain2\profiles\modding\BepInEx\plugins\0n_x-testmod&quot;" />
-	</Target>
+    <Exec Command="xcopy /Y /s /e &quot;$(TargetPath)&quot; &quot;$(ProjectDir)..\Thunderstore\plugins&quot;&#xD;&#xA;&#xD;&#xA;" />
+    <Exec Command="rmdir /S /Q &quot;C:\Users\TIZIA\AppData\Roaming\com.kesomannen.gale\riskofrain2\profiles\modding\BepInEx\plugins\0n_x-testmod&quot;&#xD;&#xA;&#xD;&#xA;" />
+    <Exec Command="mkdir &quot;C:\Users\TIZIA\AppData\Roaming\com.kesomannen.gale\riskofrain2\profiles\modding\BepInEx\plugins\0n_x-testmod&quot;&#xD;&#xA;&#xD;&#xA;" />
+    <Exec Command="xcopy /Y /s /e &quot;$(ProjectDir)..\Thunderstore\plugins&quot; &quot;C:\Users\TIZIA\AppData\Roaming\com.kesomannen.gale\riskofrain2\profiles\modding\BepInEx\plugins\0n_x-testmod&quot;" />
+  </Target>
 </Project>
