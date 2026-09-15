@@ -36,11 +36,24 @@ public static class SaleStar
 		IL.RoR2.InteractionDriver.MyFixedUpdate += InteractionDriver_MyFixedUpdate;
 		IL.RoR2.PurchaseInteraction.OnInteractionBegin += PurchaseInteraction_OnInteractionBegin;
 		SceneExitController.onBeginExit += BeginExit;
-		On.RoR2.ChestBehavior.Open += ChestBehavior_Open;
 		IL.RoR2.OutsideInteractableLocker.LockInteractable += LockInteractable;
+		On.RoR2.ChestBehavior.BaseItemDrop += ChestBehavior_BaseItemDrop;
 	}
 
-	private static void LockInteractable(ILContext il)
+    private static void ChestBehavior_BaseItemDrop(On.RoR2.ChestBehavior.orig_BaseItemDrop orig, ChestBehavior self)
+    {
+		if (RetroactiveMacro.ExcludeSaleStarChest.Value)
+		{
+			ChestLootTracker tracker = self.EnsureComponent<ChestLootTracker>();
+			if (self.currentPickup.isValid)
+			{
+				tracker.ItemIndex = PickupCatalog.GetPickupDef(self.currentPickup.pickupIndex).itemIndex;
+			}
+		}
+        orig(self);
+    }
+
+    private static void LockInteractable(ILContext il)
 	{
 		ILCursor c = new ILCursor(il);
 		ILLabel label = c.DefineLabel();
@@ -159,7 +172,7 @@ public static class SaleStar
 			if (self.TryGetComponent(out ChestLootTracker chestLootTracker) && chestLootTracker.ItemIndex == DLC2Content.Items.LowerPricedChests.itemIndex)
 				return;
 			if (purchaseInteraction.lastActivator && purchaseInteraction.lastActivator.TryGetComponent(out CharacterBody body)
-			&& body.inventory && body.inventory.GetItemCountEffective(DLC2Content.Items.LowerPricedChests) > 0)
+			&& Util.GetItemCountForTeam(body.teamComponent.teamIndex, DLC2Content.Items.LowerPricedChests.itemIndex, true) > 0)
 			{
 				purchaseInteraction.SetAvailable(true);
 			}
@@ -171,19 +184,6 @@ public static class SaleStar
 		{
 			purchaseInteraction.costType = CostTypeIndex.Money;
 		}
-	}
-
-	private static void ChestBehavior_Open(On.RoR2.ChestBehavior.orig_Open orig, ChestBehavior self)
-	{
-		if (RetroactiveMacro.ExcludeSaleStarChest.Value)
-		{
-			ChestLootTracker tracker = self.EnsureComponent<ChestLootTracker>();
-			if (self.currentPickup.isValid)
-			{
-				tracker.ItemIndex = PickupCatalog.GetPickupDef(self.currentPickup.pickupIndex).itemIndex;
-			}
-		}
-		orig(self);
 	}
 
 	public class ChestLootTracker : MonoBehaviour

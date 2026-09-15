@@ -1,3 +1,7 @@
+## 1.0.8
+* Fixed lockboxes not caring if they dropped a Sale Star
+* Fixed Sale Star not being useable on chests opened by a teammate
+
 ## 1.0.7
 * Fixed the game shitting itself without quality
 * Fixed new animations not working on preplaced objects

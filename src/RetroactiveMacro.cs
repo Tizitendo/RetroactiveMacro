@@ -1,11 +1,8 @@
 using BepInEx;
 using BepInEx.Configuration;
-using KinematicCharacterController;
 using Logger;
 using Mono.Cecil.Cil;
-using MonoDetour;
 using MonoMod.Cil;
-using MonoMod.RuntimeDetour;
 using R2API;
 using R2API.Models;
 using RoR2;
@@ -26,6 +23,11 @@ using UnityEngine.AddressableAssets;
 namespace RetroactiveMacro;
 
 [BepInPlugin(PluginGUID, PluginName, PluginVersion)]
+[BepInDependency(AnimationsAPI.PluginGUID)]
+[BepInDependency(R2API.ContentManagement.R2APIContentManager.PluginGUID)]
+[BepInDependency(LanguageAPI.PluginGUID)]
+[BepInDependency(PrefabAPI.PluginGUID)]
+[BepInDependency(MiscFixes.MiscFixesPlugin.PluginGUID)]
 [BepInDependency(RiskOfOptions.PluginInfo.PLUGIN_GUID, BepInDependency.DependencyFlags.SoftDependency)]
 [BepInDependency("com.Gorakh.ItemQualities", BepInDependency.DependencyFlags.SoftDependency)]
 public class RetroactiveMacro : BaseUnityPlugin
@@ -33,7 +35,7 @@ public class RetroactiveMacro : BaseUnityPlugin
 	public const string PluginGUID = PluginAuthor + "." + PluginName;
 	public const string PluginAuthor = "Onyx";
 	public const string PluginName = "RetroactiveMacro";
-	public const string PluginVersion = "1.0.0";
+	public const string PluginVersion = "1.0.8";
 
 	public static RetroactiveMacro Instance;
 	public static AssetBundle Bundle;
