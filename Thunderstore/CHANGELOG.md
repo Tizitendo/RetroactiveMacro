@@ -1,6 +1,10 @@
-## 1.0.8
+## 1.0.9
 * Fixed lockboxes not caring if they dropped a Sale Star
 * Fixed Sale Star not being useable on chests opened by a teammate
+
+## 1.0.8
+* fixed shipping request form shops not being pingable after use
+* fixed log spamming when pinging a multishop
 
 ## 1.0.7
 * Fixed the game shitting itself without quality

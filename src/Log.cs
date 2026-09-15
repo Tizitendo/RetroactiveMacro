@@ -28,10 +28,12 @@ internal static class Log
     internal static void Fatal(object data) => _logSource.LogFatal(data);
     internal static void Info(object data)
     {
-		StackFrame frame = new StackFrame(1);
-		var method = frame.GetMethod();
-		_logSource.LogInfo("[" + method.Name + "]: " + data);
-    }
-    internal static void Message(object data) => message(data);
+        #if DEBUG
+		    StackFrame frame = new StackFrame(1);
+		    var method = frame.GetMethod();
+		    _logSource.LogInfo("[" + method.Name + "]: " + data);
+        #endif
+	}
+	internal static void Message(object data) => message(data);
     internal static void Warning(object data) => _logSource.LogWarning(data);
 }

@@ -1,6 +1,6 @@
 ﻿{
 	"name": "RetroactiveMacro",
-	"version_number": "1.0.7",
+	"version_number": "1.0.8",
 	"website_url": "https://github.com/Tizitendo/RetroactiveMacro",
 	"description": "Reworks some macro to be less time consuming",
 	"dependencies": [

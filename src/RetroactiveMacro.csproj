@@ -48,5 +48,6 @@
 		<Exec Command="rm -rf /home/tizian/.local/share/com.kesomannen.gale/riskofrain2/profiles/Modding/BepInEx/plugins/0n_x-testmod"/>
 		<Exec Command="mkdir /home/tizian/.local/share/com.kesomannen.gale/riskofrain2/profiles/Modding/BepInEx/plugins/0n_x-testmod"/>
 		<Exec Command="rsync -avz $(ProjectDir)../Thunderstore /home/tizian/.local/share/com.kesomannen.gale/riskofrain2/profiles/Modding/BepInEx/plugins/0n_x-testmod"/>
-	</Target>
+		
+  </Target>
 </Project>
