@@ -47,7 +47,12 @@ public static class SaleStar
 			ChestLootTracker tracker = self.EnsureComponent<ChestLootTracker>();
 			if (self.currentPickup.isValid)
 			{
-				tracker.ItemIndex = PickupCatalog.GetPickupDef(self.currentPickup.pickupIndex).itemIndex;
+				ItemIndex itemIndex = PickupCatalog.GetPickupDef(self.currentPickup.pickupIndex).itemIndex;
+				if (QualityCompat.enabled)
+				{
+					QualityCompat.GetBaseItemIndex(itemIndex);
+				}
+				tracker.ItemIndex = itemIndex;
 			}
 		}
         orig(self);
@@ -227,12 +232,7 @@ public class LowerPricedChestsBodyBehavoir : BaseItemBodyBehavior
 		{
 			if (!interaction.TryGetComponent(out EntityStateMachine stateMachine) || stateMachine.state is not Opened)
 				continue;
-			ItemIndex itemIndex = DLC2Content.Items.LowerPricedChests.itemIndex;
-			if (QualityCompat.enabled)
-			{
-				itemIndex = QualityCompat.GetBaseItemIndex(DLC2Content.Items.LowerPricedChests.itemIndex);
-			}
-			if (interaction.TryGetComponent(out ChestLootTracker chestLootTracker) && chestLootTracker.ItemIndex == itemIndex)
+			if (interaction.TryGetComponent(out ChestLootTracker chestLootTracker) && chestLootTracker.ItemIndex == DLC2Content.Items.LowerPricedChests.itemIndex)
 				continue;
 			if (interaction.saleStarCompatible && interaction.costType == SaleStarCost.SaleStar)
 			{

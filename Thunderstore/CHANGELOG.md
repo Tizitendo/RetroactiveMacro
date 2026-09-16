@@ -1,3 +1,6 @@
+## 1.1.0
+* Fixed Quality Sale Star not locking the chest it dropped from
+
 ## 1.0.9
 * Fixed lockboxes not caring if they dropped a Sale Star
 * Fixed Sale Star not being useable on chests opened by a teammate
