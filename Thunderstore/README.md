@@ -9,7 +9,8 @@ Compatible with Quality
 <img src="https://github.com/Tizitendo/RetroactiveMacro/blob/main/Gifs/SaleStar.gif?raw=true" />
 
 * Can be used to reopen chests instead
-* Option to exclude chests that dropped a Sale Star (Default: enabled)
+* Option (Default: On): Exclude chests that dropped a Sale Star
+* Option (Default: Off): Reopening a chest has a 50% (-25% per stack) chance to fail up to 3 times. Failing does not consume Sale Stars
 * Total items gained is identical to vanilla
 * Adaptive chests are unaffected by this mod
 * Opened chests can be pinged
@@ -20,7 +21,7 @@ Compatible with Quality
 <img src="https://github.com/Tizitendo/RetroactiveMacro/blob/main/Gifs/CreditCard.gif?raw=true" />
 
 * While held reopen all (not opened) multishops
-* Option to exclude equipment shops (Default: enabled)
+* Option (Default: On): Exclude equipment shops
 * Closed multishoops can be pinged
 * Can be turned off in the settings
 

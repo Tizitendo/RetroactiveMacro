@@ -1,3 +1,6 @@
+## 1.1.1
+* Option (Default: Off): Reopening a chest has a 50% (-25% per stack) chance to fail up to 3 times. Failing does not consume Sale Stars
+
 ## 1.1.0
 * Fixed Quality Sale Star not locking the chest it dropped from
 

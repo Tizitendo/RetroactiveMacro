@@ -45,8 +45,10 @@ public class RetroactiveMacro : BaseUnityPlugin
 	public static ConfigEntry<bool> ChangeCard { get; set; }
 	public static ConfigEntry<bool> ExcludeEquipShops { get; set; }
 	public static ConfigEntry<bool> ExcludeSaleStarChest { get; set; }
+	public static ConfigEntry<bool> SaleStarNerf { get; set; }
 
-	static BepInPlugin bepInPlugin;
+	public static BepInPlugin bepInPlugin;
+	public static AnimatorModifications EquipBarrelModifications = null;
 
 	private static readonly Dictionary<string, Animator> _RegisteredAnimators = [];
 
@@ -104,8 +106,8 @@ public class RetroactiveMacro : BaseUnityPlugin
 			AssetAsyncReferenceManager<GameObject>.LoadAsset(new(RoR2_Base_EquipmentBarrel.EquipmentBarrel_prefab)).Completed += (prefab) =>
 			{
 				AnimatorDiff diff = RetroactiveMacro.Bundle.LoadAsset<AnimatorDiff>("Assets/Animations/EquipBarrel/Closing.controllerdiff");
-				AnimatorModifications newAnimations = AnimatorModifications.CreateFromDiff(diff, bepInPlugin);
-				AnimationsAPI.AddModifications(GetBundlePath("ror2-base-equipmentbarrel_static_assets_all_4b2bbdba8df2b852424cc377002cbfb8"), controller.Result, newAnimations);
+				EquipBarrelModifications = AnimatorModifications.CreateFromDiff(diff, bepInPlugin);
+				AnimationsAPI.AddModifications(GetBundlePath("ror2-base-equipmentbarrel_static_assets_all_4b2bbdba8df2b852424cc377002cbfb8"), controller.Result, EquipBarrelModifications);
 				RegisterPurchaseReplacementAnimation(controller.Result, prefab.Result, "ModelBase/mdlEquipmentBarrel");
 			};
 		};
@@ -157,10 +159,10 @@ public class RetroactiveMacro : BaseUnityPlugin
 
 	public static void RegisterPurchaseReplacementAnimation(RuntimeAnimatorController controller, GameObject origPrefab, string animatorTransformPath)
 	{
-		if (_RegisteredAnimators.ContainsKey(animatorTransformPath))
-			return;
 		Transform animatorTransform = origPrefab.transform.Find(animatorTransformPath);
 		AnimationsAPI.AddAnimatorController(animatorTransform.GetComponent<Animator>(), controller);
+		if (_RegisteredAnimators.ContainsKey(animatorTransformPath))
+			return;
 		_RegisteredAnimators.Add(animatorTransformPath, animatorTransform.GetComponent<Animator>());
 	}
 

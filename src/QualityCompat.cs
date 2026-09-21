@@ -10,6 +10,7 @@ using UnityEngine;
 
 [assembly: MonoDetourTargets(typeof(ItemQualities.Items.LowerPricedChests))]
 [assembly: MonoDetourTargets(typeof(ItemQualities.ItemCostQualityPatch))]
+[assembly: MonoDetourTargets(typeof(ItemQualities.ItemQualitiesContent))]
 
 namespace RetroactiveMacro;
 
@@ -31,16 +32,16 @@ public static class QualityCompat
 	[MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.NoOptimization)]
 	public static void Init()
 	{
-		if (!RetroactiveMacro.ChangeSaleStar.Value)
-			return;
+		if (RetroactiveMacro.ChangeSaleStar.Value)
+		{
+			Md.ItemQualities.Items.LowerPricedChests.generateQualityDropTiersFromSaleStars.ILHook(generateQualityDropTiersFromSaleStars);
+			Md.ItemQualities.Items.LowerPricedChests.tryUpgradePickupQualityFromSaleStars.ILHook(tryUpgradePickupQualityFromSaleStars);
 
-		Md.ItemQualities.Items.LowerPricedChests.generateQualityDropTiersFromSaleStars.ILHook(generateQualityDropTiersFromSaleStars);
-		Md.ItemQualities.Items.LowerPricedChests.tryUpgradePickupQualityFromSaleStars.ILHook(tryUpgradePickupQualityFromSaleStars);
-
-		Md.ItemQualities.ItemCostQualityPatch.tryUpgradeQualityFromCost.Postfix(tryUpgradeQualityFromCost);
+			Md.ItemQualities.ItemCostQualityPatch.tryUpgradeQualityFromCost.Postfix(tryUpgradeQualityFromCost);
+		}
 	}
 
-	[MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.NoOptimization)]
+    [MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.NoOptimization)]
 	public static EquipmentIndex GetBaseEquipmentIndex(EquipmentIndex equipmentIndex)
 	{
 		if (equipmentIndex == EquipmentIndex.None)

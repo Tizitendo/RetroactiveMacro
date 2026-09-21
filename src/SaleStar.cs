@@ -18,6 +18,8 @@ namespace RetroactiveMacro;
 
 public static class SaleStar
 {
+	public static LanguageAPI.LanguageOverlay NerfOverlay = null;
+
 	[SystemInitializer]
 	static void Init()
 	{
@@ -34,11 +36,31 @@ public static class SaleStar
 
 		On.EntityStates.Barrel.Opened.OnEnter += Opened_OnEnter;
 		IL.RoR2.InteractionDriver.MyFixedUpdate += InteractionDriver_MyFixedUpdate;
-		IL.RoR2.PurchaseInteraction.OnInteractionBegin += PurchaseInteraction_OnInteractionBegin;
+		IL.RoR2.PurchaseInteraction.OnInteractionBegin += IL_PurchaseInteraction_OnInteractionBegin;
 		SceneExitController.onBeginExit += BeginExit;
 		IL.RoR2.OutsideInteractableLocker.LockInteractable += LockInteractable;
 		On.RoR2.ChestBehavior.BaseItemDrop += ChestBehavior_BaseItemDrop;
+		On.RoR2.PurchaseInteraction.OnInteractionBegin += PurchaseInteraction_OnInteractionBegin;
+
+		RetroactiveMacro.SaleStarNerf.SettingChanged += SaleStarNerfLanguage;
 	}
+
+    private static void SaleStarNerfLanguage(object sender, EventArgs e)
+    {
+        if(RetroactiveMacro.SaleStarNerf.Value)
+		{
+			string path = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "lang", "SaleStarNerf.language");
+			if (File.Exists(path))
+			{
+				NerfOverlay = LanguageAPI.AddOverlayPath(path);
+			} else {
+				Log.Error("Failed to find path: " + path);
+			}
+		} else
+		{
+			NerfOverlay?.Remove();
+		}
+    }
 
     private static void ChestBehavior_BaseItemDrop(On.RoR2.ChestBehavior.orig_BaseItemDrop orig, ChestBehavior self)
     {
@@ -60,7 +82,7 @@ public static class SaleStar
 
     private static void LockInteractable(ILContext il)
 	{
-		ILCursor c = new ILCursor(il);
+		ILCursor c = new(il);
 		ILLabel label = c.DefineLabel();
 
 		if (c.TryGotoNext(MoveType.After,
@@ -98,7 +120,21 @@ public static class SaleStar
 		}
 	}
 
-	private static void PurchaseInteraction_OnInteractionBegin(ILContext il)
+	private static void PurchaseInteraction_OnInteractionBegin(On.RoR2.PurchaseInteraction.orig_OnInteractionBegin orig, PurchaseInteraction self, Interactor activator)
+    {
+        if (activator.TryGetComponent(out LowerPricedChestsBodyBehavoir lowerPricedChestsBodyBehavoir) && self.costType == SaleStarCost.SaleStar)
+        {
+            lowerPricedChestsBodyBehavoir.RollSaleStar();
+        }
+        orig(self, activator);
+		if (lowerPricedChestsBodyBehavoir && !lowerPricedChestsBodyBehavoir.lastRoll && self.costType == SaleStarCost.SaleStar && 
+		self.TryGetComponent(out ChestBehavior chestBehavior))
+		{
+			chestBehavior.dropCount = 0;
+		}
+    }
+
+	private static void IL_PurchaseInteraction_OnInteractionBegin(ILContext il)
 	{
 		ILCursor c = new(il);
 		ILLabel label = null;
@@ -112,14 +148,16 @@ public static class SaleStar
 		}
 
 		c.Emit(OpCodes.Ldarg_0);
-		c.EmitDelegate<Func<PurchaseInteraction, bool>>(checkReopen);
+		c.Emit(OpCodes.Ldarg_1);
+		c.EmitDelegate<Func<PurchaseInteraction, Interactor, bool>>(skipStarUse);
 		c.Emit(OpCodes.Brfalse, label);
 
-		static bool checkReopen(PurchaseInteraction self)
+		static bool skipStarUse(PurchaseInteraction self, Interactor activator)
 		{
 			if (self.TryGetComponent(out RouletteChestController rouletteChestController))
 				return true;
-			return self.costType == SaleStarCost.SaleStar;
+			return self.costType == SaleStarCost.SaleStar && activator.TryGetComponent(out LowerPricedChestsBodyBehavoir lowerPricedChestsBodyBehavoir) &&
+			lowerPricedChestsBodyBehavoir.lastRoll;
 		}
 
 		if (c.TryGotoNext(MoveType.Before,
@@ -146,7 +184,7 @@ public static class SaleStar
 		))
 		{
 			c.Emit(OpCodes.Ldarg_0);
-			c.EmitDelegate<Func<InteractionDriver, bool>>(checkReopen);
+			c.EmitDelegate<Func<InteractionDriver, bool>>(showStarVisual);
 			c.Emit(OpCodes.Brfalse, label);
 		}
 		else
@@ -154,7 +192,7 @@ public static class SaleStar
 			Log.Error(il.Method.Name + "Failed to find patch location");
 		}
 
-		static bool checkReopen(InteractionDriver self)
+		static bool showStarVisual(InteractionDriver self)
 		{
 			if (!self.currentInteractable.TryGetComponent(out PurchaseInteraction purchaseInteration))
 				return false;
@@ -226,6 +264,16 @@ public class LowerPricedChestsBodyBehavoir : BaseItemBodyBehavior
 	[ItemDefAssociation(useOnServer = true, useOnClient = false)]
 	private static ItemDef GetItemDef() => DLC2Content.Items.LowerPricedChests;
 
+	private float _weightReduction = 0;
+	private Xoroshiro128Plus _rng;
+	public bool lastRoll;
+
+	void Awake()
+	{
+		_rng = new(Run.instance.treasureRng.nextUlong);
+		ResetSelection();
+	}
+
 	void OnEnable()
 	{
 		foreach (PurchaseInteraction interaction in InstanceTracker.GetInstancesList<PurchaseInteraction>())
@@ -243,7 +291,7 @@ public class LowerPricedChestsBodyBehavoir : BaseItemBodyBehavior
 
 	void OnDisable()
 	{
-		if (Util.GetItemCountForTeam(body.teamComponent.teamIndex, DLC2Content.Items.LowerPricedChests.itemIndex, true) > 0)
+		if (Util.GetItemCountForTeam(TeamIndex.Player, DLC2Content.Items.LowerPricedChests.itemIndex, true) > 0)
 			return;
 		foreach (PurchaseInteraction interaction in InstanceTracker.GetInstancesList<PurchaseInteraction>())
 		{
@@ -252,5 +300,28 @@ public class LowerPricedChestsBodyBehavoir : BaseItemBodyBehavior
 				interaction.SetAvailable(false);
 			}
 		}
+	}
+
+	private void ResetSelection()
+	{
+		_weightReduction = 0;
+	}
+
+	public bool RollSaleStar()
+	{
+		if (!TryGetComponent(out CharacterBody body) || !body.inventory)
+			return true;
+		if (!RetroactiveMacro.SaleStarNerf.Value)
+			return true;
+		int salestarCount = body.inventory.GetItemCountEffective(DLC2Content.Items.LowerPricedChests.itemIndex);
+		lastRoll = _rng.RangeFloat(0, 6 - _weightReduction + salestarCount * 1.5f) <= 1.5f + 1.5f * salestarCount;
+		if (lastRoll)
+		{
+			ResetSelection();
+		} else
+		{
+			_weightReduction++;
+		}
+		return lastRoll;
 	}
 }

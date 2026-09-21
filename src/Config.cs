@@ -17,6 +17,7 @@ static class Options
 	{
 		RetroactiveMacro.ChangeSaleStar = RetroactiveMacro.Instance.Config.Bind("Sale Star", "Change Sale Star", true, "Reopen chests instead");
 		RetroactiveMacro.ExcludeSaleStarChest = RetroactiveMacro.Instance.Config.Bind("Sale Star", "Exclude Sale Star Chests", true, "Chests that drop a Sale Star cannot be reopened");
+		RetroactiveMacro.SaleStarNerf = RetroactiveMacro.Instance.Config.Bind("Sale Star", "Nerf/Rework", false, "Reopening a chest has a 50% (-25% per stack) chance to fail up to 3 times. Failing does not consume Sale Stars");
 		RetroactiveMacro.ChangeCard = RetroactiveMacro.Instance.Config.Bind("Executive Card", "Change Credit Card", true, "While holding the card, reopen all closed multishops");
 		RetroactiveMacro.ExcludeEquipShops = RetroactiveMacro.Instance.Config.Bind("Executive Card", "Exclude Equipment Shops", true, "Exclude equipment tri shops from all card changes");
 		
@@ -33,6 +34,7 @@ static class Options
 
 		ModSettingsManager.AddOption(new CheckBoxOption(RetroactiveMacro.ChangeSaleStar, true), MOD_GUID, MOD_NAME);
 		ModSettingsManager.AddOption(new CheckBoxOption(RetroactiveMacro.ExcludeSaleStarChest, true), MOD_GUID, MOD_NAME);
+		ModSettingsManager.AddOption(new CheckBoxOption(RetroactiveMacro.SaleStarNerf, false), MOD_GUID, MOD_NAME);
 		ModSettingsManager.AddOption(new CheckBoxOption(RetroactiveMacro.ChangeCard), MOD_GUID, MOD_NAME);
 		ModSettingsManager.AddOption(new CheckBoxOption(RetroactiveMacro.ExcludeEquipShops), MOD_GUID, MOD_NAME);
 
