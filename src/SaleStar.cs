@@ -309,10 +309,11 @@ public class LowerPricedChestsBodyBehavoir : BaseItemBodyBehavior
 
 	public bool RollSaleStar()
 	{
-		if (!TryGetComponent(out CharacterBody body) || !body.inventory)
+		if (!TryGetComponent(out CharacterBody body) || !body.inventory || !RetroactiveMacro.SaleStarNerf.Value)
+		{
+			lastRoll = true;
 			return true;
-		if (!RetroactiveMacro.SaleStarNerf.Value)
-			return true;
+		}
 		int salestarCount = body.inventory.GetItemCountEffective(DLC2Content.Items.LowerPricedChests.itemIndex);
 		lastRoll = _rng.RangeFloat(0, 6 - _weightReduction + salestarCount * 1.5f) <= 1.5f + 1.5f * salestarCount;
 		if (lastRoll)
