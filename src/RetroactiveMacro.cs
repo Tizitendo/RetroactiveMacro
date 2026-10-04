@@ -35,7 +35,7 @@ public class RetroactiveMacro : BaseUnityPlugin
 	public const string PluginGUID = PluginAuthor + "." + PluginName;
 	public const string PluginAuthor = "Onyx";
 	public const string PluginName = "RetroactiveMacro";
-	public const string PluginVersion = "1.1.1";
+	public const string PluginVersion = "1.1.2";
 
 	public static RetroactiveMacro Instance;
 	public static AssetBundle Bundle;
@@ -48,7 +48,6 @@ public class RetroactiveMacro : BaseUnityPlugin
 	public static ConfigEntry<bool> SaleStarNerf { get; set; }
 
 	public static BepInPlugin bepInPlugin;
-	public static AnimatorModifications EquipBarrelModifications = null;
 
 	private static readonly Dictionary<string, Animator> _RegisteredAnimators = [];
 
@@ -59,13 +58,12 @@ public class RetroactiveMacro : BaseUnityPlugin
 		Instance = SingletonHelper.Assign(Instance, this);
 		Options.Init();
 
-		//MonoDetourManager.InvokeHookInitializers(Assembly.GetExecutingAssembly(), false);
 		if (QualityCompat.enabled)
 		{
-			QualityCompat.Init();
+			QualityCompat.InjectQualityInitializer();
 		}
 
-		Bundle = AssetBundle.LoadFromFile(AssetBundlePath);
+		Bundle = AssetBundle.LoadFromFile(GetModBundlePath(Assembly.GetExecutingAssembly(), "bundle.bundle"));
 		ContentAddition.AddEntityState<CloseOpen>(out _);
 
 		FakeInteractableLock = PrefabAPI.CreateEmptyPrefab("FakeInteractableLock", true);
@@ -75,7 +73,7 @@ public class RetroactiveMacro : BaseUnityPlugin
 		{
 			AnimatorDiff diff = RetroactiveMacro.Bundle.LoadAsset<AnimatorDiff>("Assets/Animations/MultiShop/Reopen.controllerdiff");
 			AnimatorModifications newAnimations = AnimatorModifications.CreateFromDiff(diff, bepInPlugin);
-			AnimationsAPI.AddModifications(GetBundlePath("ror2-base-multishopterminal_assets_all_e550cfc9295bb6ea35be13bc7fc042d2"), controller.Result, newAnimations);
+			AnimationsAPI.AddModifications(GetBaseBundlePath("ror2-base-multishopterminal_assets_all_e550cfc9295bb6ea35be13bc7fc042d2"), controller.Result, newAnimations);
 			AssetAsyncReferenceManager<GameObject>.LoadAsset(new(RoR2_Base_MultiShopTerminal.MultiShopTerminal_prefab)).Completed += (prefab) =>
 			{
 				RegisterPurchaseReplacementAnimation(controller.Result, prefab.Result, "Display/mdlMultiShopTerminal");
@@ -96,7 +94,7 @@ public class RetroactiveMacro : BaseUnityPlugin
 			{
 				AnimatorDiff diff = RetroactiveMacro.Bundle.LoadAsset<AnimatorDiff>("Assets/Animations/ShippingDrone/Reopen.controllerdiff");
 				AnimatorModifications newAnimations = AnimatorModifications.CreateFromDiff(diff, bepInPlugin);
-				AnimationsAPI.AddModifications(GetBundlePath("ror2-dlc1-freechestmultishop_static_assets_all_1d7b71789b08d225b234934cdc572855"), controller.Result, newAnimations);
+				AnimationsAPI.AddModifications(GetBaseBundlePath("ror2-dlc1-freechestmultishop_static_assets_all_1d7b71789b08d225b234934cdc572855"), controller.Result, newAnimations);
 				RegisterPurchaseReplacementAnimation(controller.Result, prefab.Result, "mdlShippingDronePod");
 			};
 		};
@@ -106,8 +104,8 @@ public class RetroactiveMacro : BaseUnityPlugin
 			AssetAsyncReferenceManager<GameObject>.LoadAsset(new(RoR2_Base_EquipmentBarrel.EquipmentBarrel_prefab)).Completed += (prefab) =>
 			{
 				AnimatorDiff diff = RetroactiveMacro.Bundle.LoadAsset<AnimatorDiff>("Assets/Animations/EquipBarrel/Closing.controllerdiff");
-				EquipBarrelModifications = AnimatorModifications.CreateFromDiff(diff, bepInPlugin);
-				AnimationsAPI.AddModifications(GetBundlePath("ror2-base-equipmentbarrel_static_assets_all_4b2bbdba8df2b852424cc377002cbfb8"), controller.Result, EquipBarrelModifications);
+				AnimatorModifications newAnimations = AnimatorModifications.CreateFromDiff(diff, bepInPlugin);
+				AnimationsAPI.AddModifications(GetBaseBundlePath("ror2-base-equipmentbarrel_static_assets_all_4b2bbdba8df2b852424cc377002cbfb8"), controller.Result, newAnimations);
 				RegisterPurchaseReplacementAnimation(controller.Result, prefab.Result, "ModelBase/mdlEquipmentBarrel");
 			};
 		};
@@ -118,7 +116,7 @@ public class RetroactiveMacro : BaseUnityPlugin
 			{
 				AnimatorDiff diff = RetroactiveMacro.Bundle.LoadAsset<AnimatorDiff>("Assets/Animations/Lockbox/Closing.controllerdiff");
 				AnimatorModifications newAnimations = AnimatorModifications.CreateFromDiff(diff, bepInPlugin);
-				AnimationsAPI.AddModifications(GetBundlePath("ror2-base-treasurecache_static_assets_all_d08d914a36f0eb6c803eb3c820e8852d"), controller.Result, newAnimations);
+				AnimationsAPI.AddModifications(GetBaseBundlePath("ror2-base-treasurecache_static_assets_all_d08d914a36f0eb6c803eb3c820e8852d"), controller.Result, newAnimations);
 				RegisterPurchaseReplacementAnimation(controller.Result, prefab.Result, "ModelBase/mdlKeyLockbox");
 				if (QualityCompat.enabled)
 				{
@@ -133,7 +131,7 @@ public class RetroactiveMacro : BaseUnityPlugin
 			AnimatorModifications newAnimations = AnimatorModifications.CreateFromDiff(diff, bepInPlugin);
 			AssetAsyncReferenceManager<GameObject>.LoadAsset(new(RoR2_Base_GoldChest.GoldChest_prefab)).Completed += (prefab) =>
 			{
-				AnimationsAPI.AddModifications(GetBundlePath("ror2-base-goldchest_static_assets_all_073b623b25fd304ed31873a2430b080e"), controller.Result, newAnimations);
+				AnimationsAPI.AddModifications(GetBaseBundlePath("ror2-base-goldchest_static_assets_all_073b623b25fd304ed31873a2430b080e"), controller.Result, newAnimations);
 				RegisterPurchaseReplacementAnimation(controller.Result, prefab.Result, "mdlGoldChest");
 			};
 		};
@@ -236,15 +234,12 @@ public class RetroactiveMacro : BaseUnityPlugin
 		}
 	}
 
-	public static string AssetBundlePath
+	public static string GetModBundlePath(Assembly assembly, string bundleName)
 	{
-		get
-		{
-			return System.IO.Path.Combine(System.IO.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "bundle.bundle");
-		}
+		return System.IO.Path.Combine(System.IO.Path.GetDirectoryName(assembly.Location), bundleName);
 	}
 
-	public static string GetBundlePath(string bundleName)
+	public static string GetBaseBundlePath(string bundleName)
 	{
 		return System.IO.Path.Combine(
 			Addressables.RuntimePath,

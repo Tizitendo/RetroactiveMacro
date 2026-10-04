@@ -224,8 +224,8 @@ public static class Card
 			if (terminals[i].GetComponent<PurchaseInteraction>().available)
 				continue;
 			cardHandler.recoveredShop = true;
-			cardHandler.multiShopController.available = true;
-			terminals[i].GetComponent<PurchaseInteraction>().available = true;
+			cardHandler.multiShopController.Networkavailable = true;
+			terminals[i].GetComponent<PurchaseInteraction>().SetAvailable(true);
 			Util.PlaySound("Play_UI_tripleChestShutter", shopTerminalBehavior.gameObject);
 
 			if (NetworkServer.active)
@@ -238,6 +238,8 @@ public static class Card
 
 	static void DroneVendorHasCard(MacroCardDroneHandler cardHandler)
 	{
+		if (!NetworkServer.active)
+			return;
 		if (cardHandler.multiShopController.TryGetComponent(out EntityStateMachine entityStateMachine) &&
 		entityStateMachine.state is not EntityStates.Idle)
 			return;
@@ -251,15 +253,17 @@ public static class Card
 			cardHandler.recoveredShop = true;
 			if (terminals[i].GetComponent<EntityStateMachine>().state is EntityStates.Idle)
 			{
-				cardHandler.multiShopController.available = true;
+				cardHandler.multiShopController.Networkavailable = true;
 			}
-			terminals[i].GetComponent<PurchaseInteraction>().available = true;
+			terminals[i].GetComponent<PurchaseInteraction>().SetAvailable(true);
 			terminals[i].SetPickup(cardHandler.savedPickups[i]);
 		}
 	}
 
 	static void ItemVendorHasNoCard(MacroCardItemHandler cardHandler)
 	{
+		if (!NetworkServer.active)
+			return;
 		if (cardHandler.recoveredShop)
 		{
 			GameObject[] terminals = cardHandler.multiShopController.terminalGameObjects;
@@ -271,8 +275,8 @@ public static class Card
 					continue;
 				if (shopTerminalBehavior.hasBeenPurchased)
 					continue;
-				cardHandler.multiShopController.available = false;
-				terminals[i].GetComponent<PurchaseInteraction>().available = false;
+				cardHandler.multiShopController.Networkavailable = false;
+				terminals[i].GetComponent<PurchaseInteraction>().SetAvailable(false);
 				shopTerminalBehavior.SetNoPickup();
 			}
 		}
@@ -287,8 +291,8 @@ public static class Card
 			{
 				if (terminals[i].hasBeenPurchased)
 					continue;
-				cardHandler.multiShopController.available = false;
-				terminals[i].purchaseInteraction.available = false;
+				cardHandler.multiShopController.Networkavailable = false;
+				terminals[i].purchaseInteraction.SetAvailable(false);
 				terminals[i].SetNoPickup();
 			}
 		}
@@ -317,6 +321,8 @@ public class MacroCardItemHandler : MonoBehaviour
 
 	private void Start()
 	{
+		if (!NetworkServer.active)
+			return;
 		savedPickups = new UniquePickup[multiShopController.terminalGameObjects.Length];
 		hidden = new bool[multiShopController.terminalGameObjects.Length];
 		for (int i = 0; i < multiShopController.terminalGameObjects.Length; i++)
@@ -366,6 +372,8 @@ public class MacroCardDroneHandler : MonoBehaviour
 
 	private void Start()
 	{
+		if (!NetworkServer.active)
+			return;
 		savedPickups = new UniquePickup[multiShopController._terminals.Length];
 		for (int i = 0; i < multiShopController._terminals.Length; i++)
 		{

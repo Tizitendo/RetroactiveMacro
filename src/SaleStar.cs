@@ -214,8 +214,7 @@ public static class SaleStar
 		{
 			if (self.TryGetComponent(out ChestLootTracker chestLootTracker) && chestLootTracker.ItemIndex == DLC2Content.Items.LowerPricedChests.itemIndex)
 				return;
-			if (purchaseInteraction.lastActivator && purchaseInteraction.lastActivator.TryGetComponent(out CharacterBody body)
-			&& Util.GetItemCountForTeam(body.teamComponent.teamIndex, DLC2Content.Items.LowerPricedChests.itemIndex, true) > 0)
+			if (Util.GetItemCountForTeam(TeamIndex.Player, DLC2Content.Items.LowerPricedChests.itemIndex, true) > 0)
 			{
 				purchaseInteraction.SetAvailable(true);
 			}

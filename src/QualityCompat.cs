@@ -3,7 +3,12 @@ using Mono.Cecil.Cil;
 using MonoDetour.Cil;
 using MonoDetour.HookGen;
 using MonoMod.Cil;
+using R2API;
+using R2API.Models;
+using R2API.Utils;
 using RoR2;
+using RoR2.ContentManagement;
+using RoR2BepInExPack.GameAssetPathsBetter;
 using System;
 using System.Runtime.CompilerServices;
 using UnityEngine;
@@ -29,8 +34,23 @@ public static class QualityCompat
 		}
 	}
 
-	[MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.NoOptimization)]
+	[SystemInitializer]
 	public static void Init()
+	{
+		if (enabled)
+		{
+			InitContent();
+		}
+	}
+
+	[MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.NoOptimization)]
+	public static void InjectQualityInitializer()
+	{
+		SystemInitializerInjector.InjectDependency(typeof(QualityCompat), typeof(ItemQualities.QualityCatalog));
+	}
+
+	[MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.NoOptimization)]
+	private static void InitContent()
 	{
 		if (RetroactiveMacro.ChangeSaleStar.Value)
 		{
@@ -39,9 +59,18 @@ public static class QualityCompat
 
 			Md.ItemQualities.ItemCostQualityPatch.tryUpgradeQualityFromCost.Postfix(tryUpgradeQualityFromCost);
 		}
+
+		AssetAsyncReferenceManager<RuntimeAnimatorController>.LoadAsset(new(RoR2_Base_EquipmentBarrel.animEquipmentBarrel_controller)).Completed += (controller) =>
+		{
+			AnimatorDiff diff = RetroactiveMacro.Bundle.LoadAsset<AnimatorDiff>("Assets/Animations/EquipBarrel/Closing.controllerdiff");
+			AnimatorModifications newAnimations = AnimatorModifications.CreateFromDiff(diff, RetroactiveMacro.bepInPlugin);
+			GameObject prefab = ItemQualities.ItemQualitiesContent.SpawnCards.QualityEquipmentBarrel.prefab;
+			AnimationsAPI.AddModifications(RetroactiveMacro.GetBaseBundlePath("ror2-base-equipmentbarrel_static_assets_all_4b2bbdba8df2b852424cc377002cbfb8"), controller.Result, newAnimations);
+			RetroactiveMacro.RegisterPurchaseReplacementAnimation(controller.Result, prefab, "ModelBase/mdlQualityEquipmentBarrel");
+		};
 	}
 
-    [MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.NoOptimization)]
+	[MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.NoOptimization)]
 	public static EquipmentIndex GetBaseEquipmentIndex(EquipmentIndex equipmentIndex)
 	{
 		if (equipmentIndex == EquipmentIndex.None)
