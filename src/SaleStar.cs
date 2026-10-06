@@ -64,6 +64,7 @@ public static class SaleStar
 
     private static void ChestBehavior_BaseItemDrop(On.RoR2.ChestBehavior.orig_BaseItemDrop orig, ChestBehavior self)
     {
+		self.currentPickup = new UniquePickup(PickupCatalog.itemIndexToPickupIndex[(int)ItemQualities.ItemQualitiesContent.ItemQualityGroups.LowerPricedChests.GetItemIndex(ItemQualities.QualityTier.Uncommon)]);
 		if (RetroactiveMacro.ExcludeSaleStarChest.Value)
 		{
 			ChestLootTracker tracker = self.EnsureComponent<ChestLootTracker>();
@@ -72,7 +73,7 @@ public static class SaleStar
 				ItemIndex itemIndex = PickupCatalog.GetPickupDef(self.currentPickup.pickupIndex).itemIndex;
 				if (QualityCompat.enabled)
 				{
-					QualityCompat.GetBaseItemIndex(itemIndex);
+					itemIndex = QualityCompat.GetBaseItemIndex(itemIndex);
 				}
 				tracker.ItemIndex = itemIndex;
 			}
@@ -313,8 +314,8 @@ public class LowerPricedChestsBodyBehavoir : BaseItemBodyBehavior
 			lastRoll = true;
 			return true;
 		}
-		int salestarCount = body.inventory.GetItemCountEffective(DLC2Content.Items.LowerPricedChests.itemIndex);
-		lastRoll = _rng.RangeFloat(0, 6 - _weightReduction + salestarCount * 1.5f) <= 1.5f + 1.5f * salestarCount;
+		int salestarCount = body.inventory.GetItemCountEffective(DLC2Content.Items.LowerPricedChests.itemIndex) - 1;
+		lastRoll = _rng.RangeFloat(0, 6 - _weightReduction + salestarCount * 1.5f) <= 3 + 1.5f * salestarCount;
 		if (lastRoll)
 		{
 			ResetSelection();

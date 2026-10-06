@@ -83,7 +83,7 @@ public static class QualityCompat
 	{
 		if (itemIndex == ItemIndex.None)
 			return itemIndex;
-		return PickupCatalog.GetPickupDef(ItemQualities.QualityCatalog.GetPickupIndexOfQuality(PickupCatalog.itemIndexToPickupIndex[(int)itemIndex], ItemQualities.QualityTier.None)).itemIndex; ;
+		return ItemQualities.QualityCatalog.GetItemIndexOfQuality(itemIndex, ItemQualities.QualityTier.None);
 	}
 
 	[MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.NoOptimization)]
