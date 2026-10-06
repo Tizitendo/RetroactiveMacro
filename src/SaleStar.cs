@@ -64,7 +64,7 @@ public static class SaleStar
 
     private static void ChestBehavior_BaseItemDrop(On.RoR2.ChestBehavior.orig_BaseItemDrop orig, ChestBehavior self)
     {
-		self.currentPickup = new UniquePickup(PickupCatalog.itemIndexToPickupIndex[(int)ItemQualities.ItemQualitiesContent.ItemQualityGroups.LowerPricedChests.GetItemIndex(ItemQualities.QualityTier.Uncommon)]);
+		// self.currentPickup = new UniquePickup(PickupCatalog.itemIndexToPickupIndex[(int)ItemQualities.ItemQualitiesContent.ItemQualityGroups.LowerPricedChests.GetItemIndex(ItemQualities.QualityTier.Uncommon)]);
 		if (RetroactiveMacro.ExcludeSaleStarChest.Value)
 		{
 			ChestLootTracker tracker = self.EnsureComponent<ChestLootTracker>();

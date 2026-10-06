@@ -1,6 +1,6 @@
 ## 1.1.3
 * Fixed sale star fail chance being higher than intended and allowing up to 5 fails per stage
-* Fixed Quality sale star chests being sale starable with the option to disable that turned on
+* Fixed quality sale star chests being sale starable with the option to disable that turned on
 
 ## 1.1.2
 * Added closing animation to quality equip barrels
