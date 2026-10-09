@@ -5,6 +5,7 @@ using RoR2.ContentManagement;
 using RoR2BepInExPack.GameAssetPaths.Version_1_39_0;
 using System.Collections;
 using UnityEngine;
+using UnityEngine.AddressableAssets;
 using UnityEngine.Networking;
 
 namespace RetroactiveMacro;
@@ -26,26 +27,26 @@ public static class Card
 		SceneDirector.onPrePopulateSceneServer += PrePopulateSceneServer;
 		On.EntityStates.DroneVendor.DroneVendorAssumeIdle.OnExit += DroneVendorAssumeIdle_OnExit;
 
-		AssetAsyncReferenceManager<GameObject>.LoadAsset(new(RoR2_Base_TripleShop.TripleShop_prefab)).Completed += (x) =>
+		AssetAsyncReferenceManager<GameObject>.LoadAsset(new AssetReferenceT<GameObject>(RoR2_Base_TripleShop.TripleShop_prefab)).Completed += (x) =>
 		{
 			x.Result.AddComponent<MacroCardItemHandler>();
 		};
 		if (!RetroactiveMacro.ExcludeEquipShops.Value)
 		{
-			AssetAsyncReferenceManager<GameObject>.LoadAsset(new(RoR2_Base_TripleShopEquipment.TripleShopEquipment_prefab)).Completed += (x) =>
+			AssetAsyncReferenceManager<GameObject>.LoadAsset(new AssetReferenceT<GameObject>(RoR2_Base_TripleShopEquipment.TripleShopEquipment_prefab)).Completed += (x) =>
 			{
 				x.Result.AddComponent<MacroCardItemHandler>();
 			};
 		}
-		AssetAsyncReferenceManager<GameObject>.LoadAsset(new(RoR2_Base_TripleShopLarge.TripleShopLarge_prefab)).Completed += (x) =>
+		AssetAsyncReferenceManager<GameObject>.LoadAsset(new AssetReferenceT<GameObject>(RoR2_Base_TripleShopLarge.TripleShopLarge_prefab)).Completed += (x) =>
 		{
 			x.Result.AddComponent<MacroCardItemHandler>();
 		};
-		AssetAsyncReferenceManager<GameObject>.LoadAsset(new(RoR2_DLC1_FreeChestMultiShop.FreeChestMultiShop_prefab)).Completed += (x) =>
+		AssetAsyncReferenceManager<GameObject>.LoadAsset(new AssetReferenceT<GameObject>(RoR2_DLC1_FreeChestMultiShop.FreeChestMultiShop_prefab)).Completed += (x) =>
 		{
 			x.Result.AddComponent<MacroCardItemHandler>();
 		};
-		AssetAsyncReferenceManager<GameObject>.LoadAsset(new(RoR2_DLC3_TripleDroneShop.TripleDroneShop_prefab)).Completed += (x) =>
+		AssetAsyncReferenceManager<GameObject>.LoadAsset(new AssetReferenceT<GameObject>(RoR2_DLC3_TripleDroneShop.TripleDroneShop_prefab)).Completed += (x) =>
 		{
 			x.Result.AddComponent<MacroCardDroneHandler>();
 		};

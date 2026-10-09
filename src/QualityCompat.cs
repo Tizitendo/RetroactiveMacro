@@ -12,6 +12,7 @@ using RoR2BepInExPack.GameAssetPathsBetter;
 using System;
 using System.Runtime.CompilerServices;
 using UnityEngine;
+using UnityEngine.AddressableAssets;
 
 [assembly: MonoDetourTargets(typeof(ItemQualities.Items.LowerPricedChests))]
 [assembly: MonoDetourTargets(typeof(ItemQualities.ItemCostQualityPatch))]
@@ -60,7 +61,7 @@ public static class QualityCompat
 			Md.ItemQualities.ItemCostQualityPatch.tryUpgradeQualityFromCost.Postfix(tryUpgradeQualityFromCost);
 		}
 
-		AssetAsyncReferenceManager<RuntimeAnimatorController>.LoadAsset(new(RoR2_Base_EquipmentBarrel.animEquipmentBarrel_controller)).Completed += (controller) =>
+		AssetAsyncReferenceManager<RuntimeAnimatorController>.LoadAsset(new AssetReferenceT<RuntimeAnimatorController>(RoR2_Base_EquipmentBarrel.animEquipmentBarrel_controller)).Completed += (controller) =>
 		{
 			AnimatorDiff diff = RetroactiveMacro.Bundle.LoadAsset<AnimatorDiff>("Assets/Animations/EquipBarrel/Closing.controllerdiff");
 			AnimatorModifications newAnimations = AnimatorModifications.CreateFromDiff(diff, RetroactiveMacro.bepInPlugin);
