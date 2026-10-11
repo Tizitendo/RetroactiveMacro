@@ -37,6 +37,26 @@ MonoBehaviour:
     m_Address: Assets/Animations/GoldChest/Closing.controllerdiff
     m_ReadOnly: 0
     m_SerializedLabels: []
+  - m_GUID: 4953d22b31197a14b865dd9f36a734bf
+    m_Address: Assets/Animations/MultiShop/animMultiShopTerminal_modified.controller
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 767de5981740f024cabffa5032259cf3
+    m_Address: Assets/Animations/EquipBarrel/animEquipmentBarrel_modified.controller
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 21fd37953f819c94fa3a6e40e62fb716
+    m_Address: Assets/Animations/GoldChest/animGoldChest_modified.controller
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: aa4fe19a64d2a33488a8578cdca667a7
+    m_Address: Assets/Animations/Lockbox/animLockbox_modified.controller
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 22f10def4688e4344bdf6aa061fb47df
+    m_Address: Assets/Animations/ShippingDrone/animShippingDronePod_modified.controller
+    m_ReadOnly: 0
+    m_SerializedLabels: []
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: 547658405e4c108419fc9d5ed872613e, type: 2}
   m_SchemaSet:

@@ -1,3 +1,7 @@
+## 1.1.3
+* Updated to HC
+* temporarily stopped using animationsapi as it seems to be broken
+
 ## 1.1.2
 * Added closing animation to quality equip barrels
 * Potentially fixed multiplayer mod incompat with quality card

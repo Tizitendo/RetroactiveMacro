@@ -60,14 +60,14 @@ public static class QualityCompat
 			Md.ItemQualities.ItemCostQualityPatch.tryUpgradeQualityFromCost.Postfix(tryUpgradeQualityFromCost);
 		}
 
-		AssetAsyncReferenceManager<RuntimeAnimatorController>.LoadAsset(new(RoR2_Base_EquipmentBarrel.animEquipmentBarrel_controller)).Completed += (controller) =>
-		{
-			AnimatorDiff diff = RetroactiveMacro.Bundle.LoadAsset<AnimatorDiff>("Assets/Animations/EquipBarrel/Closing.controllerdiff");
-			AnimatorModifications newAnimations = AnimatorModifications.CreateFromDiff(diff, RetroactiveMacro.bepInPlugin);
-			GameObject prefab = ItemQualities.ItemQualitiesContent.SpawnCards.QualityEquipmentBarrel.prefab;
-			AnimationsAPI.AddModifications(RetroactiveMacro.GetBaseBundlePath("ror2-base-equipmentbarrel_static_assets_all_4b2bbdba8df2b852424cc377002cbfb8"), controller.Result, newAnimations);
-			RetroactiveMacro.RegisterPurchaseReplacementAnimation(controller.Result, prefab, "ModelBase/mdlQualityEquipmentBarrel");
-		};
+		//AssetAsyncReferenceManager<RuntimeAnimatorController>.LoadAsset(new(RoR2_Base_EquipmentBarrel.animEquipmentBarrel_controller)).Completed += (controller) =>
+		//{
+		//	AnimatorDiff diff = RetroactiveMacro.Bundle.LoadAsset<AnimatorDiff>("Assets/Animations/EquipBarrel/Closing.controllerdiff");
+		//	AnimatorModifications newAnimations = AnimatorModifications.CreateFromDiff(diff, RetroactiveMacro.bepInPlugin);
+		//	GameObject prefab = ItemQualities.ItemQualitiesContent.SpawnCards.QualityEquipmentBarrel.prefab;
+		//	AnimationsAPI.AddModifications(RetroactiveMacro.GetBaseBundlePath("ror2-base-equipmentbarrel_static_assets_all_4b2bbdba8df2b852424cc377002cbfb8"), controller.Result, newAnimations);
+		//	RetroactiveMacro.RegisterPurchaseReplacementAnimation(controller.Result, prefab, "ModelBase/mdlQualityEquipmentBarrel");
+		//};
 	}
 
 	[MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.NoOptimization)]

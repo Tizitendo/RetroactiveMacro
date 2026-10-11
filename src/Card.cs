@@ -5,6 +5,7 @@ using RoR2.ContentManagement;
 using RoR2BepInExPack.GameAssetPaths.Version_1_39_0;
 using System.Collections;
 using UnityEngine;
+using UnityEngine.AddressableAssets;
 using UnityEngine.Networking;
 
 namespace RetroactiveMacro;
@@ -18,7 +19,8 @@ public static class Card
 	{
 		if (!RetroactiveMacro.ChangeCard.Value)
 			return;
-		On.RoR2.Inventory.SetEquipmentInternal_EquipmentState_uint_uint += SetEquipment;
+		On.RoR2.Inventory.SetEquipmentInternal_refEquipmentState_refEquipmentLocation += SetEquipment;
+		//On.RoR2.Inventory.SetEquipmentInternal_EquipmentState_uint_uint += SetEquipment;
 		On.EntityStates.GenericCharacterDeath.OnEnter += GenericCharacterDeath_OnEnter;
 		On.RoR2.ShopTerminalBehavior.UpdatePickupDisplayAndAnimations += UpdatePickupDisplayAndAnimations;
 		On.RoR2.CharacterMaster.TryReviveOnBodyDeath += TryReviveOnBodyDeath;
@@ -26,26 +28,26 @@ public static class Card
 		SceneDirector.onPrePopulateSceneServer += PrePopulateSceneServer;
 		On.EntityStates.DroneVendor.DroneVendorAssumeIdle.OnExit += DroneVendorAssumeIdle_OnExit;
 
-		AssetAsyncReferenceManager<GameObject>.LoadAsset(new(RoR2_Base_TripleShop.TripleShop_prefab)).Completed += (x) =>
+		AssetAsyncReferenceManager<GameObject>.LoadAsset(new AssetReferenceT<GameObject>(RoR2_Base_TripleShop.TripleShop_prefab)).Completed += (x) =>
 		{
 			x.Result.AddComponent<MacroCardItemHandler>();
 		};
 		if (!RetroactiveMacro.ExcludeEquipShops.Value)
 		{
-			AssetAsyncReferenceManager<GameObject>.LoadAsset(new(RoR2_Base_TripleShopEquipment.TripleShopEquipment_prefab)).Completed += (x) =>
+			AssetAsyncReferenceManager<GameObject>.LoadAsset(new AssetReferenceT<GameObject>(RoR2_Base_TripleShopEquipment.TripleShopEquipment_prefab)).Completed += (x) =>
 			{
 				x.Result.AddComponent<MacroCardItemHandler>();
 			};
 		}
-		AssetAsyncReferenceManager<GameObject>.LoadAsset(new(RoR2_Base_TripleShopLarge.TripleShopLarge_prefab)).Completed += (x) =>
+		AssetAsyncReferenceManager<GameObject>.LoadAsset(new AssetReferenceT<GameObject>(RoR2_Base_TripleShopLarge.TripleShopLarge_prefab)).Completed += (x) =>
 		{
 			x.Result.AddComponent<MacroCardItemHandler>();
 		};
-		AssetAsyncReferenceManager<GameObject>.LoadAsset(new(RoR2_DLC1_FreeChestMultiShop.FreeChestMultiShop_prefab)).Completed += (x) =>
+		AssetAsyncReferenceManager<GameObject>.LoadAsset(new AssetReferenceT<GameObject>(RoR2_DLC1_FreeChestMultiShop.FreeChestMultiShop_prefab)).Completed += (x) =>
 		{
 			x.Result.AddComponent<MacroCardItemHandler>();
 		};
-		AssetAsyncReferenceManager<GameObject>.LoadAsset(new(RoR2_DLC3_TripleDroneShop.TripleDroneShop_prefab)).Completed += (x) =>
+		AssetAsyncReferenceManager<GameObject>.LoadAsset(new AssetReferenceT<GameObject>(RoR2_DLC3_TripleDroneShop.TripleDroneShop_prefab)).Completed += (x) =>
 		{
 			x.Result.AddComponent<MacroCardDroneHandler>();
 		};
@@ -108,9 +110,9 @@ public static class Card
 		}
 	}
 
-	private static bool SetEquipment(On.RoR2.Inventory.orig_SetEquipmentInternal_EquipmentState_uint_uint orig, Inventory self, EquipmentState equipmentState, uint slot, uint set)
+	private static bool SetEquipment(On.RoR2.Inventory.orig_SetEquipmentInternal_refEquipmentState_refEquipmentLocation orig, Inventory self, ref EquipmentState equipmentState, ref EquipmentLocation location)
 	{
-		bool result = orig(self, equipmentState, slot, set);
+		bool result = orig(self, ref equipmentState, ref location);
 		if (PlayerTeamHasEquipment(DLC1Content.Equipment.MultiShopCard.equipmentIndex))
 		{
 			HasCard();
@@ -150,9 +152,13 @@ public static class Card
 	{
 		for (uint slot = 0; slot < inventory.GetEquipmentSlotCount(); slot++)
 		{
-			for (uint set = 0; set < inventory.GetEquipmentSetCount(slot); set++)
+			for (uint set = 0; set < inventory.GetEquipmentSetCount(); set++)
 			{
-				EquipmentState state = inventory.GetEquipment(slot, set);
+				EquipmentState state = inventory.GetEquipment(new EquipmentLocation
+				{
+					slot = slot,
+					set = set
+				});
 
 				EquipmentIndex heldEquipment = state.equipmentIndex;
 				if (QualityCompat.enabled)
