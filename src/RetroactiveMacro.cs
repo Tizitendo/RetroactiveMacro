@@ -34,7 +34,7 @@ public class RetroactiveMacro : BaseUnityPlugin
 	public const string PluginGUID = PluginAuthor + "." + PluginName;
 	public const string PluginAuthor = "Onyx";
 	public const string PluginName = "RetroactiveMacro";
-	public const string PluginVersion = "1.1.2";
+	public const string PluginVersion = "1.1.4";
 
 	public static RetroactiveMacro Instance;
 	public static AssetBundle Bundle;
@@ -74,12 +74,10 @@ public class RetroactiveMacro : BaseUnityPlugin
 			{
 				RegisterPurchaseReplacementAnimationNoAPI(controller, prefab.Result, "Display/mdlMultiShopTerminal");
 			};
-
 			AssetAsyncReferenceManager<GameObject>.LoadAsset(new AssetReferenceT<GameObject>(RoR2_Base_MultiShopEquipmentTerminal.MultiShopEquipmentTerminal_prefab)).Completed += (prefab) =>
 			{
 				RegisterPurchaseReplacementAnimationNoAPI(controller, prefab.Result, "Display/mdlMultiShopTerminal");
 			};
-
 			AssetAsyncReferenceManager<GameObject>.LoadAsset(new AssetReferenceT<GameObject>(RoR2_Base_MultiShopLargeTerminal.MultiShopLargeTerminal_prefab)).Completed += (prefab) =>
 			{
 				RegisterPurchaseReplacementAnimationNoAPI(controller, prefab.Result, "Display/mdlMultiShopTerminal");

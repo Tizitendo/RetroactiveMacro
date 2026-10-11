@@ -12,6 +12,7 @@ using RoR2BepInExPack.GameAssetPathsBetter;
 using System;
 using System.Runtime.CompilerServices;
 using UnityEngine;
+using UnityEngine.AddressableAssets;
 
 [assembly: MonoDetourTargets(typeof(ItemQualities.Items.LowerPricedChests))]
 [assembly: MonoDetourTargets(typeof(ItemQualities.ItemCostQualityPatch))]
@@ -83,7 +84,7 @@ public static class QualityCompat
 	{
 		if (itemIndex == ItemIndex.None)
 			return itemIndex;
-		return PickupCatalog.GetPickupDef(ItemQualities.QualityCatalog.GetPickupIndexOfQuality(PickupCatalog.itemIndexToPickupIndex[(int)itemIndex], ItemQualities.QualityTier.None)).itemIndex; ;
+		return ItemQualities.QualityCatalog.GetItemIndexOfQuality(itemIndex, ItemQualities.QualityTier.None);
 	}
 
 	[MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.NoOptimization)]
