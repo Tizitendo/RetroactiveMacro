@@ -4,6 +4,7 @@ using Logger;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using R2API;
+using R2API.Models;
 using RoR2;
 using RoR2.ContentManagement;
 using RoR2.UI;
@@ -34,7 +35,7 @@ public class RetroactiveMacro : BaseUnityPlugin
 	public const string PluginGUID = PluginAuthor + "." + PluginName;
 	public const string PluginAuthor = "Onyx";
 	public const string PluginName = "RetroactiveMacro";
-	public const string PluginVersion = "1.1.4";
+	public const string PluginVersion = "1.1.7";
 
 	public static RetroactiveMacro Instance;
 	public static AssetBundle Bundle;
@@ -68,120 +69,74 @@ public class RetroactiveMacro : BaseUnityPlugin
 		FakeInteractableLock = PrefabAPI.CreateEmptyPrefab("FakeInteractableLock", true);
 		PrefabAPI.RegisterNetworkPrefab(FakeInteractableLock);
 
+		#region register animations
+		AssetAsyncReferenceManager<RuntimeAnimatorController>.LoadAsset(new AssetReferenceT<RuntimeAnimatorController>(RoR2_Base_MultiShopTerminal.animMultiShopTerminal_controller)).Completed += (controller) =>
 		{
-			RuntimeAnimatorController controller = RetroactiveMacro.Bundle.LoadAsset<RuntimeAnimatorController>("Assets/Animations/MultiShop/animMultiShopTerminal_modified.controller");
+			R2API.Models.AnimatorDiff diff = RetroactiveMacro.Bundle.LoadAsset<AnimatorDiff>("Assets/Animations/MultiShop/Reopen.controllerdiff");
+			AnimatorModifications newAnimations = AnimatorModifications.CreateFromDiff(diff, bepInPlugin);
+
+			AnimationsAPI.AddModifications(GetBaseBundlePath("ror2-base-multishopterminal_assets_all_ddda475a090e901d6944a1821ff8480c"), controller.Result, newAnimations);
 			AssetAsyncReferenceManager<GameObject>.LoadAsset(new AssetReferenceT<GameObject>(RoR2_Base_MultiShopTerminal.MultiShopTerminal_prefab)).Completed += (prefab) =>
 			{
-				RegisterPurchaseReplacementAnimationNoAPI(controller, prefab.Result, "Display/mdlMultiShopTerminal");
+				RegisterPurchaseReplacementAnimation(controller.Result, prefab.Result, "Display/mdlMultiShopTerminal");
 			};
 			AssetAsyncReferenceManager<GameObject>.LoadAsset(new AssetReferenceT<GameObject>(RoR2_Base_MultiShopEquipmentTerminal.MultiShopEquipmentTerminal_prefab)).Completed += (prefab) =>
 			{
-				RegisterPurchaseReplacementAnimationNoAPI(controller, prefab.Result, "Display/mdlMultiShopTerminal");
+				RegisterPurchaseReplacementAnimation(controller.Result, prefab.Result, "Display/mdlMultiShopTerminal");
 			};
 			AssetAsyncReferenceManager<GameObject>.LoadAsset(new AssetReferenceT<GameObject>(RoR2_Base_MultiShopLargeTerminal.MultiShopLargeTerminal_prefab)).Completed += (prefab) =>
 			{
-				RegisterPurchaseReplacementAnimationNoAPI(controller, prefab.Result, "Display/mdlMultiShopTerminal");
+				RegisterPurchaseReplacementAnimation(controller.Result, prefab.Result, "Display/mdlMultiShopTerminal");
 			};
-		}
-
-		AssetAsyncReferenceManager<GameObject>.LoadAsset(new AssetReferenceT<GameObject>(RoR2_DLC1_FreeChestTerminalShippingDrone.FreeChestTerminalShippingDrone_prefab)).Completed += (prefab) =>
-		{
-			RuntimeAnimatorController controller = RetroactiveMacro.Bundle.LoadAsset<RuntimeAnimatorController>("Assets/Animations/ShippingDrone/animShippingDronePod_modified.controller");
-			RegisterPurchaseReplacementAnimationNoAPI(controller, prefab.Result, "mdlShippingDronePod");
 		};
 
-		AssetAsyncReferenceManager<GameObject>.LoadAsset(new AssetReferenceT<GameObject>(RoR2_Base_EquipmentBarrel.EquipmentBarrel_prefab)).Completed += (prefab) =>
+		AssetAsyncReferenceManager<RuntimeAnimatorController>.LoadAsset(new AssetReferenceT<RuntimeAnimatorController>(RoR2_DLC1_FreeChestMultiShop.animShippingDronePod_controller)).Completed += (controller) =>
 		{
-			RuntimeAnimatorController controller = RetroactiveMacro.Bundle.LoadAsset<RuntimeAnimatorController>("Assets/Animations/EquipBarrel/animEquipmentBarrel_modified.controller");
-			RegisterPurchaseReplacementAnimationNoAPI(controller, prefab.Result, "ModelBase/mdlEquipmentBarrel");
-		};
-
-		AssetAsyncReferenceManager<GameObject>.LoadAsset(new AssetReferenceT<GameObject>(RoR2_Base_TreasureCache.Lockbox_prefab)).Completed += (prefab) =>
-		{
-			RuntimeAnimatorController controller = RetroactiveMacro.Bundle.LoadAsset<RuntimeAnimatorController>("Assets/Animations/Lockbox/animLockbox_modified.controller");
-			RegisterPurchaseReplacementAnimationNoAPI(controller, prefab.Result, "ModelBase/mdlKeyLockbox");
-			if (QualityCompat.enabled)
+			AssetAsyncReferenceManager<GameObject>.LoadAsset(new AssetReferenceT<GameObject>(RoR2_DLC1_FreeChestTerminalShippingDrone.FreeChestTerminalShippingDrone_prefab)).Completed += (prefab) =>
 			{
-				QualityCompat.AddLastbuyTracker(prefab.Result);
-			}
+				AnimatorDiff diff = RetroactiveMacro.Bundle.LoadAsset<AnimatorDiff>("Assets/Animations/ShippingDrone/Reopen.controllerdiff");
+				AnimatorModifications newAnimations = AnimatorModifications.CreateFromDiff(diff, bepInPlugin);
+				AnimationsAPI.AddModifications(GetBaseBundlePath("ror2-dlc1-freechestmultishop_static_assets_all_18c9e7fb754170ee178f72f412147cdf"), controller.Result, newAnimations);
+				RegisterPurchaseReplacementAnimation(controller.Result, prefab.Result, "mdlShippingDronePod");
+			};
 		};
 
-		AssetAsyncReferenceManager<GameObject>.LoadAsset(new AssetReferenceT<GameObject>(RoR2_Base_GoldChest.GoldChest_prefab)).Completed += (prefab) =>
+		AssetAsyncReferenceManager<RuntimeAnimatorController>.LoadAsset(new AssetReferenceT<RuntimeAnimatorController>(RoR2_Base_EquipmentBarrel.animEquipmentBarrel_controller)).Completed += (controller) =>
 		{
-			RuntimeAnimatorController controller = RetroactiveMacro.Bundle.LoadAsset<RuntimeAnimatorController>("Assets/Animations/GoldChest/animGoldChest_modified.controller");
-			RegisterPurchaseReplacementAnimationNoAPI(controller, prefab.Result, "mdlGoldChest");
+			AssetAsyncReferenceManager<GameObject>.LoadAsset(new AssetReferenceT<GameObject>(RoR2_Base_EquipmentBarrel.EquipmentBarrel_prefab)).Completed += (prefab) =>
+			{
+				AnimatorDiff diff = RetroactiveMacro.Bundle.LoadAsset<AnimatorDiff>("Assets/Animations/EquipBarrel/Closing.controllerdiff");
+				AnimatorModifications newAnimations = AnimatorModifications.CreateFromDiff(diff, bepInPlugin);
+				AnimationsAPI.AddModifications(GetBaseBundlePath("ror2-base-equipmentbarrel_static_assets_all_2220a7cb49fb78d9c297b2516d08c19a"), controller.Result, newAnimations);
+				RegisterPurchaseReplacementAnimation(controller.Result, prefab.Result, "ModelBase/mdlEquipmentBarrel");
+			};
 		};
 
-		#region animationsapi is broken for now
-		//AssetAsyncReferenceManager<RuntimeAnimatorController>.LoadAsset(new(RoR2_Base_MultiShopTerminal.animMultiShopTerminal_controller)).Completed += (controller) =>
-		//{
-		//	AnimatorDiff diff = RetroactiveMacro.Bundle.LoadAsset<AnimatorDiff>("Assets/Animations/MultiShop/Reopen.controllerdiff");
-		//	AnimatorModifications newAnimations = AnimatorModifications.CreateFromDiff(diff, bepInPlugin);
+		AssetAsyncReferenceManager<RuntimeAnimatorController>.LoadAsset(new AssetReferenceT<RuntimeAnimatorController>(RoR2_Base_TreasureCache.animLockbox_controller)).Completed += (controller) =>
+		{
+			AssetAsyncReferenceManager<GameObject>.LoadAsset(new AssetReferenceT<GameObject>(RoR2_Base_TreasureCache.Lockbox_prefab)).Completed += (prefab) =>
+			{
+				AnimatorDiff diff = RetroactiveMacro.Bundle.LoadAsset<AnimatorDiff>("Assets/Animations/Lockbox/Closing.controllerdiff");
+				AnimatorModifications newAnimations = AnimatorModifications.CreateFromDiff(diff, bepInPlugin);
+				AnimationsAPI.AddModifications(GetBaseBundlePath("ror2-base-treasurecache_static_assets_all_3e634d3cec2317e98a7e2903952bfe1f"), controller.Result, newAnimations);
+				RegisterPurchaseReplacementAnimation(controller.Result, prefab.Result, "ModelBase/mdlKeyLockbox");
+				if (QualityCompat.enabled)
+				{
+					QualityCompat.AddLastbuyTracker(prefab.Result);
+				}
+			};
+		};
 
-		//	AnimationsAPI.AddModifications(GetBaseBundlePath("ror2-base-multishopterminal_assets_all_ddda475a090e901d6944a1821ff8480c"), controller.Result, newAnimations);
-		//	AssetAsyncReferenceManager<GameObject>.LoadAsset(new(RoR2_Base_MultiShopTerminal.MultiShopTerminal_prefab)).Completed += (prefab) =>
-		//	{
-		//		Transform animatorTransform = prefab.Result.transform.Find("Display/mdlMultiShopTerminal");
-		//		AnimationsAPI.AddAnimatorController(animatorTransform.GetComponent<Animator>(), controller.Result);
-		//		//RegisterPurchaseReplacementAnimation(controller.Result, prefab.Result, "Display/mdlMultiShopTerminal");
-		//	};
-		//	AssetAsyncReferenceManager<GameObject>.LoadAsset(new(RoR2_Base_MultiShopEquipmentTerminal.MultiShopEquipmentTerminal_prefab)).Completed += (prefab) =>
-		//	{
-		//		RegisterPurchaseReplacementAnimation(controller.Result, prefab.Result, "Display/mdlMultiShopTerminal");
-		//	};
-		//	AssetAsyncReferenceManager<GameObject>.LoadAsset(new(RoR2_Base_MultiShopLargeTerminal.MultiShopLargeTerminal_prefab)).Completed += (prefab) =>
-		//	{
-		//		RegisterPurchaseReplacementAnimation(controller.Result, prefab.Result, "Display/mdlMultiShopTerminal");
-		//	};
-		//};
-
-		//AssetAsyncReferenceManager<RuntimeAnimatorController>.LoadAsset(new(RoR2_DLC1_FreeChestMultiShop.animShippingDronePod_controller)).Completed += (controller) =>
-		//{
-		//	AssetAsyncReferenceManager<GameObject>.LoadAsset(new(RoR2_DLC1_FreeChestTerminalShippingDrone.FreeChestTerminalShippingDrone_prefab)).Completed += (prefab) =>
-		//	{
-		//		AnimatorDiff diff = RetroactiveMacro.Bundle.LoadAsset<AnimatorDiff>("Assets/Animations/ShippingDrone/Reopen.controllerdiff");
-		//		AnimatorModifications newAnimations = AnimatorModifications.CreateFromDiff(diff, bepInPlugin);
-		//		AnimationsAPI.AddModifications(GetBaseBundlePath("ror2-dlc1-freechestmultishop_static_assets_all_1d7b71789b08d225b234934cdc572855"), controller.Result, newAnimations);
-		//		RegisterPurchaseReplacementAnimation(controller.Result, prefab.Result, "mdlShippingDronePod");
-		//	};
-		//};
-
-		//AssetAsyncReferenceManager<RuntimeAnimatorController>.LoadAsset(new(RoR2_Base_EquipmentBarrel.animEquipmentBarrel_controller)).Completed += (controller) =>
-		//{
-		//	AssetAsyncReferenceManager<GameObject>.LoadAsset(new(RoR2_Base_EquipmentBarrel.EquipmentBarrel_prefab)).Completed += (prefab) =>
-		//	{
-		//		AnimatorDiff diff = RetroactiveMacro.Bundle.LoadAsset<AnimatorDiff>("Assets/Animations/EquipBarrel/Closing.controllerdiff");
-		//		AnimatorModifications newAnimations = AnimatorModifications.CreateFromDiff(diff, bepInPlugin);
-		//		AnimationsAPI.AddModifications(GetBaseBundlePath("ror2-base-equipmentbarrel_static_assets_all_4b2bbdba8df2b852424cc377002cbfb8"), controller.Result, newAnimations);
-		//		RegisterPurchaseReplacementAnimation(controller.Result, prefab.Result, "ModelBase/mdlEquipmentBarrel");
-		//	};
-		//};
-
-		//AssetAsyncReferenceManager<RuntimeAnimatorController>.LoadAsset(new(RoR2_Base_TreasureCache.animLockbox_controller)).Completed += (controller) =>
-		//{
-		//	AssetAsyncReferenceManager<GameObject>.LoadAsset(new(RoR2_Base_TreasureCache.Lockbox_prefab)).Completed += (prefab) =>
-		//	{
-		//		AnimatorDiff diff = RetroactiveMacro.Bundle.LoadAsset<AnimatorDiff>("Assets/Animations/Lockbox/Closing.controllerdiff");
-		//		AnimatorModifications newAnimations = AnimatorModifications.CreateFromDiff(diff, bepInPlugin);
-		//		AnimationsAPI.AddModifications(GetBaseBundlePath("ror2-base-treasurecache_static_assets_all_d08d914a36f0eb6c803eb3c820e8852d"), controller.Result, newAnimations);
-		//		RegisterPurchaseReplacementAnimation(controller.Result, prefab.Result, "ModelBase/mdlKeyLockbox");
-		//		if (QualityCompat.enabled)
-		//		{
-		//			QualityCompat.AddLastbuyTracker(prefab.Result);
-		//		}
-		//	};
-		//};
-
-		//AssetAsyncReferenceManager<RuntimeAnimatorController>.LoadAsset(new(RoR2_Base_GoldChest.animGoldChest_controller)).Completed += (controller) =>
-		//{
-		//	AnimatorDiff diff = RetroactiveMacro.Bundle.LoadAsset<AnimatorDiff>("Assets/Animations/GoldChest/Closing.controllerdiff");
-		//	AnimatorModifications newAnimations = AnimatorModifications.CreateFromDiff(diff, bepInPlugin);
-		//	AssetAsyncReferenceManager<GameObject>.LoadAsset(new(RoR2_Base_GoldChest.GoldChest_prefab)).Completed += (prefab) =>
-		//	{
-		//		AnimationsAPI.AddModifications(GetBaseBundlePath("ror2-base-goldchest_static_assets_all_073b623b25fd304ed31873a2430b080e"), controller.Result, newAnimations);
-		//		RegisterPurchaseReplacementAnimation(controller.Result, prefab.Result, "mdlGoldChest");
-		//	};
-		//};
+		AssetAsyncReferenceManager<RuntimeAnimatorController>.LoadAsset(new AssetReferenceT<RuntimeAnimatorController>(RoR2_Base_GoldChest.animGoldChest_controller)).Completed += (controller) =>
+		{
+			AnimatorDiff diff = RetroactiveMacro.Bundle.LoadAsset<AnimatorDiff>("Assets/Animations/GoldChest/Closing.controllerdiff");
+			AnimatorModifications newAnimations = AnimatorModifications.CreateFromDiff(diff, bepInPlugin);
+			AssetAsyncReferenceManager<GameObject>.LoadAsset(new AssetReferenceT<GameObject>(RoR2_Base_GoldChest.GoldChest_prefab)).Completed += (prefab) =>
+			{
+				AnimationsAPI.AddModifications(GetBaseBundlePath("ror2-base-goldchest_static_assets_all_f8f8636d3a6397d23c1a6386c6b31ef2"), controller.Result, newAnimations);
+				RegisterPurchaseReplacementAnimation(controller.Result, prefab.Result, "mdlGoldChest");
+			};
+		};
 		#endregion
 
 		IL.RoR2.UI.PingIndicator.Update += PingIndicator_Update;
@@ -197,30 +152,21 @@ public class RetroactiveMacro : BaseUnityPlugin
 				Transform child = purchaseInteraction.transform.Find(newAnimator.Key);
 				if (child && child.TryGetComponent(out Animator animator))
 				{
-					//ReplaceComponent(animator, newAnimator.Value);
-					animator.runtimeAnimatorController = newAnimator.Value.runtimeAnimatorController;
+					//animator.runtimeAnimatorController = newAnimator.Value.runtimeAnimatorController;
+					AnimationsAPI.AddAnimatorController(animator, newAnimator.Value.runtimeAnimatorController);
 				}
 			}
 		}
 	}
 
-	public static void RegisterPurchaseReplacementAnimationNoAPI(RuntimeAnimatorController controller, GameObject origPrefab, string animatorTransformPath)
+	public static void RegisterPurchaseReplacementAnimation(RuntimeAnimatorController controller, GameObject origPrefab, string animatorTransformPath)
 	{
 		Transform animatorTransform = origPrefab.transform.Find(animatorTransformPath);
-		animatorTransform.GetComponent<Animator>().runtimeAnimatorController = controller;
+		AnimationsAPI.AddAnimatorController(animatorTransform.GetComponent<Animator>(), controller);
 		if (_RegisteredAnimators.ContainsKey(animatorTransformPath))
 			return;
 		_RegisteredAnimators.Add(animatorTransformPath, animatorTransform.GetComponent<Animator>());
 	}
-
-	//public static void RegisterPurchaseReplacementAnimation(RuntimeAnimatorController controller, GameObject origPrefab, string animatorTransformPath)
-	//{
-	//	Transform animatorTransform = origPrefab.transform.Find(animatorTransformPath);
-	//	AnimationsAPI.AddAnimatorController(animatorTransform.GetComponent<Animator>(), controller);
-	//	if (_RegisteredAnimators.ContainsKey(animatorTransformPath))
-	//		return;
-	//	_RegisteredAnimators.Add(animatorTransformPath, animatorTransform.GetComponent<Animator>());
-	//}
 
 	public static void ReplaceComponent<T>(T dest, T source) where T : Component
 	{

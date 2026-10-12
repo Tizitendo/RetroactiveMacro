@@ -1,3 +1,6 @@
+## 1.1.7
+* Using animationsapi again
+
 ## 1.1.6
 * Updated to HC
 * temporarily stopped using animationsapi as it seems to be broken
