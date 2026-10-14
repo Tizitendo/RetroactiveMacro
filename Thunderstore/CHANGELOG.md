@@ -1,3 +1,9 @@
+## 1.1.9
+* Actually fixed now?
+
+## 1.1.8
+* Fixed Equip barrels not opening
+
 ## 1.1.7
 * Using animationsapi again
 
