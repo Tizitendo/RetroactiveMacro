@@ -35,7 +35,7 @@ public class RetroactiveMacro : BaseUnityPlugin
 	public const string PluginGUID = PluginAuthor + "." + PluginName;
 	public const string PluginAuthor = "Onyx";
 	public const string PluginName = "RetroactiveMacro";
-	public const string PluginVersion = "1.1.7";
+	public const string PluginVersion = "1.2.0";
 
 	public static RetroactiveMacro Instance;
 	public static AssetBundle Bundle;
@@ -152,7 +152,6 @@ public class RetroactiveMacro : BaseUnityPlugin
 				Transform child = purchaseInteraction.transform.Find(newAnimator.Key);
 				if (child && child.TryGetComponent(out Animator animator))
 				{
-					//animator.runtimeAnimatorController = newAnimator.Value.runtimeAnimatorController;
 					AnimationsAPI.AddAnimatorController(animator, newAnimator.Value.runtimeAnimatorController);
 				}
 			}

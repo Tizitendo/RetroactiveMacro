@@ -12,15 +12,12 @@ namespace RetroactiveMacro;
 
 public static class Card
 {
-	static bool _onCooldown;
-
 	[SystemInitializer]
 	static void Init()
 	{
 		if (!RetroactiveMacro.ChangeCard.Value)
 			return;
 		On.RoR2.Inventory.SetEquipmentInternal_refEquipmentState_refEquipmentLocation += SetEquipment;
-		//On.RoR2.Inventory.SetEquipmentInternal_EquipmentState_uint_uint += SetEquipment;
 		On.EntityStates.GenericCharacterDeath.OnEnter += GenericCharacterDeath_OnEnter;
 		On.RoR2.ShopTerminalBehavior.UpdatePickupDisplayAndAnimations += UpdatePickupDisplayAndAnimations;
 		On.RoR2.CharacterMaster.TryReviveOnBodyDeath += TryReviveOnBodyDeath;
@@ -55,15 +52,12 @@ public static class Card
 
 	private static void OnPurchase(MultiShopCardUtils.orig_OnPurchase orig, CostTypeDef.PayCostContext context, int moneyCost)
 	{
-		_onCooldown = true;
-		RetroactiveMacro.Instance.StartCoroutine(UsedCard());
+		UsedCard();
 		orig(context, moneyCost);
 	}
 
-	static IEnumerator UsedCard()
+	static void UsedCard()
 	{
-		yield return new WaitForSeconds(0.5f);
-		_onCooldown = false;
 		if (!PlayerTeamHasEquipment(DLC1Content.Equipment.MultiShopCard.equipmentIndex))
 		{
 			HasNoCard();
@@ -135,8 +129,6 @@ public static class Card
 
 	static bool PlayerTeamHasEquipment(EquipmentIndex equipment)
 	{
-		if (_onCooldown)
-			return true;
 		foreach (PlayerCharacterMasterController instance in PlayerCharacterMasterController.instances)
 		{
 			if (instance && instance.isConnected && instance.master.hasBody && instance.master.GetBody().healthComponent && instance.master.GetBody().healthComponent.alive)
@@ -165,7 +157,7 @@ public static class Card
 				{
 					heldEquipment = QualityCompat.GetBaseEquipmentIndex(heldEquipment);
 				}
-				if (heldEquipment == equipment && state.charges > 0)
+				if (heldEquipment == equipment && (state.charges > 0 || state.chargeFinishTime.timeUntil < 0.5))
 				{
 					return true;
 				}
