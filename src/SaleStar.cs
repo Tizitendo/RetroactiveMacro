@@ -215,14 +215,14 @@ public static class SaleStar
 		{
 			if (self.TryGetComponent(out ChestLootTracker chestLootTracker) && chestLootTracker.ItemIndex == DLC2Content.Items.LowerPricedChests.itemIndex)
 				return;
-			if (Util.GetTotalItemCountFromTeam(new Util.GetTotalItemCountFromTeamArgs {
-				itemIndex = DLC2Content.Items.LowerPricedChests.itemIndex,
-				requiredTeam = TeamIndex.Player,
-				requiresAlive = true,
-				requiresConnected = true,
-				onlyPlayerControlledCharacters = true,
-				queryCountRegardlessOfInventoryOrItemDisabled = true
-			}) > 0)
+			// if (Util.GetTotalItemCountFromTeam(new Util.GetTotalItemCountFromTeamArgs {
+			// 	itemIndex = DLC2Content.Items.LowerPricedChests.itemIndex,
+			// 	requiredTeam = TeamIndex.Player,
+			// 	requiresAlive = true,
+			// 	requiresConnected = true,
+			// 	onlyPlayerControlledCharacters = true,
+			// 	queryCount
+			if (Util.GetItemCountForTeam(TeamIndex.Player, DLC2Content.Items.LowerPricedChests.itemIndex, true, true) > 0)
 			{
 				purchaseInteraction.SetAvailable(true);
 			}
@@ -298,15 +298,17 @@ public class LowerPricedChestsBodyBehavoir : BaseItemBodyBehavior
 
 	void OnDisable()
 	{
-		if (Util.GetTotalItemCountFromTeam(new Util.GetTotalItemCountFromTeamArgs
-		{
-			itemIndex = DLC2Content.Items.LowerPricedChests.itemIndex,
-			requiredTeam = TeamIndex.Player,
-			requiresAlive = true,
-			requiresConnected = true,
-			onlyPlayerControlledCharacters = true,
-			queryCountRegardlessOfInventoryOrItemDisabled = true
-		}) > 0) return;
+		// if (Util.GetTotalItemCountFromTeam(new Util.GetTotalItemCountFromTeamArgs
+		// {
+		// 	itemIndex = DLC2Content.Items.LowerPricedChests.itemIndex,
+		// 	requiredTeam = TeamIndex.Player,
+		// 	requiresAlive = true,
+		// 	requiresConnected = true,
+		// 	onlyPlayerControlledCharacters = true,
+		// 	queryCountRegardlessOfInventoryOrItemDisabled = true
+		// }) > 0) return;
+		if (Util.GetItemCountForTeam(TeamIndex.Player, DLC2Content.Items.LowerPricedChests.itemIndex, true, true) > 0)
+			return;
 		foreach (PurchaseInteraction interaction in InstanceTracker.GetInstancesList<PurchaseInteraction>())
 		{
 			if (interaction.saleStarCompatible && interaction.costType == SaleStarCost.SaleStar)

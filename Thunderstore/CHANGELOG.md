@@ -1,3 +1,11 @@
+## 1.2.1
+* Use new, more update robust way of getting assetbundles
+* Revert to deprecated "GetItemCountForTeam" which is supported by quality
+* Clean up and redo some of the card logic to be more robust
+
+## 1.2.0
+* Probably fixed multishops staying open for half a second too long (I could not reproduce this myself)
+
 ## 1.1.9
 * Actually fixed now?
 

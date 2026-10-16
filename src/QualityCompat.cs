@@ -66,7 +66,7 @@ public static class QualityCompat
 			AnimatorDiff diff = RetroactiveMacro.Bundle.LoadAsset<AnimatorDiff>("Assets/Animations/EquipBarrel/Closing.controllerdiff");
 			AnimatorModifications newAnimations = AnimatorModifications.CreateFromDiff(diff, RetroactiveMacro.bepInPlugin);
 			GameObject prefab = ItemQualities.ItemQualitiesContent.SpawnCards.QualityEquipmentBarrel.prefab;
-			AnimationsAPI.AddModifications(RetroactiveMacro.GetBaseBundlePath("ror2-base-equipmentbarrel_static_assets_all_2220a7cb49fb78d9c297b2516d08c19a"), controller.Result, newAnimations);
+			AnimationsAPI.AddModifications(RetroactiveMacro.GetBaseBundlePath("ror2-base-equipmentbarrel_static_assets_all"), controller.Result, newAnimations);
 			RetroactiveMacro.RegisterPurchaseReplacementAnimation(controller.Result, prefab, "ModelBase/mdlQualityEquipmentBarrel");
 		};
 	}
