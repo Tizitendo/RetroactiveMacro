@@ -1,3 +1,6 @@
+## 1.2.2
+* Fixed nullref when using a printer while having a card
+
 ## 1.2.1
 * Use new, more update robust way of getting assetbundles
 * Revert to deprecated "GetItemCountForTeam" which is supported by quality

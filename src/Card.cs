@@ -57,9 +57,12 @@ public static class Card
 		if (!terminal)
 			return;
 		
-		if (terminal.TryGetComponent(out ShopTerminalBehavior shopTerminalBehavior) && PlayerTeamHasEquipment(DLC1Content.Equipment.MultiShopCard.equipmentIndex))
+		if (terminal.TryGetComponent(out ShopTerminalBehavior shopTerminalBehavior) && terminal.TryGetComponent(out PurchaseInteraction purchaseInteraction) && PlayerTeamHasEquipment(DLC1Content.Equipment.MultiShopCard.equipmentIndex))
 		{
-			shopTerminalBehavior.serverMultiShopController.SetCloseOnTerminalPurchase(context.purchasedObject.GetComponent<PurchaseInteraction>(), doCloseMultiShop: false);
+			if (shopTerminalBehavior.serverMultiShopController)
+			{
+				shopTerminalBehavior.serverMultiShopController.SetCloseOnTerminalPurchase(purchaseInteraction, doCloseMultiShop: false);
+			}
 		}
 	}
 
