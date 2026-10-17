@@ -332,6 +332,15 @@ public class LowerPricedChestsBodyBehavoir : BaseItemBodyBehavior
 		}
 		int salestarCount = body.inventory.GetItemCountEffective(DLC2Content.Items.LowerPricedChests.itemIndex) - 1;
 		lastRoll = _rng.RangeFloat(0, 6 - _weightReduction + salestarCount * 1.5f) <= 3 + 1.5f * salestarCount;
+		int numChestsLeft = 0;
+		foreach (PurchaseInteraction interaction in InstanceTracker.GetInstancesList<PurchaseInteraction>())
+		{
+			if (interaction.saleStarCompatible && interaction.available)
+			{
+				numChestsLeft++;
+			}
+		}
+		lastRoll |= numChestsLeft <= 1;
 		if (lastRoll)
 		{
 			ResetSelection();

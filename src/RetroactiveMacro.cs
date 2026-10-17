@@ -216,7 +216,6 @@ public class RetroactiveMacro : BaseUnityPlugin
 								break;
 							}
 						}
-						Log.Info(pingable);
 						if (!pingable)
 							return false;
 					}
