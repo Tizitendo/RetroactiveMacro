@@ -1,3 +1,6 @@
+## 1.2.4
+* Fixed shipping request forms not playing any animations
+
 ## 1.2.3
 * Using a Sale Star on the last chest of the map now succeeds every time
 

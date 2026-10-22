@@ -25,16 +25,16 @@ MonoBehaviour:
     m_Address: Assets/Animations/MultiShop/Reopen.controllerdiff
     m_ReadOnly: 0
     m_SerializedLabels: []
-  - m_GUID: a3c230c550463d840a26868678840b9d
-    m_Address: Assets/Animations/ShippingDrone/Reopen.controllerdiff
-    m_ReadOnly: 0
-    m_SerializedLabels: []
   - m_GUID: bb812e4d11af57645b6a6c66cb35e9ee
     m_Address: Assets/Animations/Lockbox/Closing.controllerdiff
     m_ReadOnly: 0
     m_SerializedLabels: []
   - m_GUID: b052a7332b6f3694eae19b6e18b2a11c
     m_Address: Assets/Animations/GoldChest/Closing.controllerdiff
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  - m_GUID: 881dde14def66104f9edd20aa9df649f
+    m_Address: Assets/Animations/ShippingDrone/Reopen.controllerdiff
     m_ReadOnly: 0
     m_SerializedLabels: []
   m_ReadOnly: 0
