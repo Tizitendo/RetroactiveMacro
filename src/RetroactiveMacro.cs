@@ -36,7 +36,7 @@ public class RetroactiveMacro : BaseUnityPlugin
 	public const string PluginGUID = PluginAuthor + "." + PluginName;
 	public const string PluginAuthor = "Onyx";
 	public const string PluginName = "RetroactiveMacro";
-	public const string PluginVersion = "1.2.2";
+	public const string PluginVersion = "1.2.3";
 
 	public static RetroactiveMacro Instance;
 	public static AssetBundle Bundle;

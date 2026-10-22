@@ -1,3 +1,6 @@
+## 1.2.3
+* Using a Sale Star on the last chest of the map now succeeds every time
+
 ## 1.2.2
 * Fixed nullref when using a printer while having a card
 
@@ -23,8 +26,8 @@
 * temporarily stopped using animationsapi as it seems to be broken
 
 ## 1.1.4
-* Fixed sale star fail chance being higher than intended and allowing up to 5 fails per stage
-* Fixed quality sale star chests being sale starable with the option to disable that turned on
+* Fixed Sale Star fail chance being higher than intended and allowing up to 5 fails per stage
+* Fixed quality Sale Star chests being sale starable with the option to disable that turned on
 
 ## 1.1.3
 * Left a breaking debug option in, do not use this verison
