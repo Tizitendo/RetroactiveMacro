@@ -1,3 +1,6 @@
+## 1.2.3
+* Fixed shipping request forms not playing any animations
+
 ## 1.2.2
 * Fixed nullref when using a printer while having a card
 
