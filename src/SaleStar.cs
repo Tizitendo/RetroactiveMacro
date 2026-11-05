@@ -41,6 +41,7 @@ public static class SaleStar
 		IL.RoR2.OutsideInteractableLocker.LockInteractable += LockInteractable;
 		On.RoR2.ChestBehavior.BaseItemDrop += ChestBehavior_BaseItemDrop;
 		On.RoR2.PurchaseInteraction.OnInteractionBegin += PurchaseInteraction_OnInteractionBegin;
+		On.RoR2.ChestRevealer.RevealedObject.OnEnable += RevealedObjectOnOnEnable;
 
 		RetroactiveMacro.SaleStarNerf.SettingChanged += SaleStarNerfLanguage;
 	}
@@ -234,6 +235,32 @@ public static class SaleStar
 		{
 			purchaseInteraction.costType = CostTypeIndex.Money;
 		}
+	}
+	
+	private static void RevealedObjectOnOnEnable(On.RoR2.ChestRevealer.RevealedObject.orig_OnEnable orig, MonoBehaviour selfM)
+	{
+		var self = (ChestRevealer.RevealedObject)selfM;
+            
+		orig(self);
+
+		var interactionObj = self.positionIndicator?.targetTransform;
+            
+		if (!interactionObj || !interactionObj.TryGetComponent<PurchaseInteraction>(out var interaction) || !self.positionIndicator.insideViewObject.TryGetComponent<SpriteRenderer>(out var sprite))
+			return;
+            
+		var shouldBeGrey = interaction.saleStarCompatible && interaction.costType == SaleStarCost.SaleStar;
+            
+		if (shouldBeGrey)
+			sprite.color = Color.white * 0.75f;
+                
+		var outsideSpriteObj = self.positionIndicator?.outsideViewObject?.transform.Find("Sprite");
+                
+		if (outsideSpriteObj && !outsideSpriteObj.TryGetComponent(out sprite))
+			return;
+		
+		
+		if (shouldBeGrey)
+			sprite.color = Color.white * 0.75f;
 	}
 
 	public class ChestLootTracker : MonoBehaviour
