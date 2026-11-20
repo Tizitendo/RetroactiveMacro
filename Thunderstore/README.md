@@ -25,5 +25,9 @@ Compatible with Quality
 * Closed multishoops can be pinged
 * Can be turned off in the settings
 
+## Credits
+
+* Bobot for implementing the gray radar scanner icons
+
 ## Contact
 For questions or bug reports, you can find me in the [RoR2 Modding Server](https://discord.gg/YxEdVK7xWM) @Onyx

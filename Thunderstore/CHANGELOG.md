@@ -1,3 +1,6 @@
+## 1.2.5
+* Radar scanner icons for opened chests while having a sale star are now gray (thanks Bobot)
+
 ## 1.2.4
 * Fixed shipping request forms not playing any animations
 
